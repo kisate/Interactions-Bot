@@ -68,7 +68,7 @@ def main():
             # This is a direct instance of the base Packet type, meaning
             # that it is a packet of unknown type, so we do not print it.
             # return
-        print('--> %s' % packet, file=sys.stderr)
+        print(f'--> {packet} {packet.packet_id}', file=sys.stderr)
 
     def print_outgoing(packet):
         print('<-- %s' % packet, file=sys.stderr)
