@@ -1,3 +1,5 @@
+import numpy
+
 class World():
     def __init__(self):
         self.chunks = []
@@ -28,4 +30,3 @@ class World():
     
     def __str__(self):
         return str(self.chunks)
-    

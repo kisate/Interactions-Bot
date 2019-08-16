@@ -451,12 +451,12 @@ class Effect(Packet):
 #        {'particle_count': Int},
 #        {'data': Array of VarInt}]
 
-class Join_Game(Packet):
+class JoinGamePacket(Packet):
     @staticmethod
     def get_id(context):
         return  0x23
 
-    packet_name = "Join_Game"
+    packet_name = "join_game"
     definition = [         
        {'entity_id': Int},
        {'gamemode': Byte},

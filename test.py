@@ -45,7 +45,7 @@ def main():
     connection.register_packet_listener(
         print_outgoing, Packet, outgoing=True)
 
-    def handle_join_game(join_game_packet):
+    def handle_join_game(join_game_packet, early=True):
         print('Connected.')
 
     connection.register_packet_listener(
