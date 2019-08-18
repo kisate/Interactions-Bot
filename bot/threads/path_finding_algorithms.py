@@ -1,4 +1,5 @@
 from heapq import heappush, heappop
+from math import ceil
 
 class Algorithm():
     def __init__(self, world):
@@ -50,18 +51,21 @@ class StraightForwardAlgorithm(Algorithm):
         next_step[0][2] += 0.5
 
         path.append(next_step)
-        return path
+        return (path, step_length)
 
 class AStarAlgorithm(Algorithm):
 
-    def expand(self, visited, heap, target, end, step_length, max_distance):
-        for x in range(target[0] - step_length, target[0] + step_length + 1):
-            for y in range(target[1], target[1] + 2):
-                for z in range(target[2] - step_length, target[2] + step_length + 1):
-                    if self.world.get_block(x, y, z) == 0 and self.world.get_block(x, y + 1, z) == 0:
+    def expand(self, visited, heap, target, end, step_length, max_distance, pivot):
+        step_length_int = ceil(step_length)
+        for x in range(target[0] - step_length_int, target[0] + step_length_int + 1):
+            for y in range(target[1] - step_length_int, target[1] + step_length_int + 1):
+                for z in range(target[2] - step_length_int, target[2] + step_length_int + 1):
+                    if (self.world.get_block(x, y, z) in self.world.block_info['blocks']['passable'] 
+                        and self.world.get_block(x, y + 1, z) in self.world.block_info['blocks']['passable']
+                            and not (self.world.get_block(x, y - 1, z) in self.world.block_info['blocks']['passable'])):
                         distance_to_travel = ((x - target[0])**2 + (y - target[1])**2 + (z - target[2])**2)**0.5
-                        if distance_to_travel <= step_length:
-                            distance_to_end = ((x - end[0])**2 + (y - end[1])**2 + (z - end[2])**2)**0.5
+                        if distance_to_travel <= step_length or (y != target[1] and distance_to_travel <= step_length*2 and distance_to_travel <= 9):
+                            distance_to_end = ((x + pivot[0] - end[0])**2 + (y + pivot[1]- end[1])**2 + (z + pivot[2] - end[2])**2)**0.5
                             if distance_to_end <= max_distance:
                                 if self.check_and_add(visited, (x, y, z), target):
                                     heappush(heap, (distance_to_end, (x, y, z)))
@@ -78,7 +82,7 @@ class AStarAlgorithm(Algorithm):
             return True
         return False
 
-    def find_path(self, start, end, step_length=8, max_distance=50):
+    def find_path(self, start, end, step_length=1, max_distance=500, radius=0.5, pivot=[0, 0, 0], drop_after=500):
         """
         Returns list of blocks on the path and actions to be done with them.
         0 -- tp
@@ -87,26 +91,41 @@ class AStarAlgorithm(Algorithm):
         heap = []
         visited = {}
         self.check_and_add(visited, start, -1)
-        r = [end[i] - start[i] for i in range(3)]
+        r = [end[i] - (start[i] + pivot[i]) for i in range(3)]
         dist = sum([x**2 for x in r])**0.5  
         heappush(heap, (dist, start))
+        last_step = []
         found = False
+        bad_moves_counter = 0
+        last_distance = dist
 
         while heap:
-            current_step = heappop(heap)[1]
-            if current_step[0] == end[0] and current_step[1] == end[1] and current_step[2] == end[2]:  
-                found = True
+            distance, current_step = heappop(heap)
+            if distance >= last_distance:
+                bad_moves_counter += 1
+            else:
+                bad_moves_counter = max(0, bad_moves_counter - 1)
+            
+            last_distance = distance
+
+            if bad_moves_counter >= drop_after:
+                print('Too many bad moves, quiting. Counter is {}'.format(bad_moves_counter))
                 break
-            self.expand(visited, heap, current_step, end, step_length, max_distance)
+
+            # print('Distance is {}, max is {}, len is {}, counter is {}'.format(distance, max_distance, len(heap), bad_moves_counter))
+            if (sum([(end[i] - (current_step[i] + pivot[i]))**2 for i in range(3)]))**0.5 < radius:  
+                found = True
+                last_step = current_step
+                break
+            self.expand(visited, heap, current_step, end, step_length, max_distance, pivot)
         
         if found:
-            current_step = end
+            current_step = last_step
             while current_step != -1:
                 path.append((current_step, [0]))
                 current_step = visited[current_step[0]][current_step[1]][current_step[2]]
             
             path.reverse()
-            return path
+            return (path, step_length)
         
         return None
-        

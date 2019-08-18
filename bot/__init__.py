@@ -1,127 +1,52 @@
 from bot.threads.path_finding_algorithms import StraightForwardAlgorithm, AStarAlgorithm
-from bot.threads import MovingThread, FallingThread
+from bot.threads import MovingThread, FallingThread, MiningThread, MultiMiningThread
 
 import random
 from minecraft.networking.packets import Packet, clientbound, serverbound
-from minecraft.networking.packets.clientbound.play import PlayerPositionAndLookPacket, JoinGamePacket
+from minecraft.networking.packets.clientbound.play import PlayerPositionAndLookPacket, JoinGamePacket, SetSlotPacket
 from minecraft.networking.types import (
     Position
 )
 
 from packets.serverbound.play import DiggingPacket
 from world import World
-import json
-import sys
-import time
+from .inventory import Inventory
+
+import json, time, sys, os
 import math
-from threading import Thread, Lock
+
+from threading import Thread, Lock, Event
+import traceback
+
+from pathlib import Path
+
+
 class Bot():
-    class MiningThread(Thread):
-        def __init__(self, name, target_block, bot):
-            Thread.__init__(self)
-            self.name = name
-            self.target_block = target_block
-            self.bot = bot
 
-        def get_to_block(self):
-            dist = ((self.target_block[0] - self.bot.pos['x'])**2 + (self.target_block[1] - self.bot.pos['feet_y'] - 1.5)**2 + (self.target_block[2] - self.bot.pos['z'])**2)**0.5
-            if dist >= 4:
-                good_coords = []
-
-                for x in range(self.target_block[0] - 4, self.target_block[0] + 5):
-                    for y in range(self.target_block[1], self.target_block[1] + 1):
-                        for z in range(self.target_block[2] - 4, self.target_block[2] + 5):
-                            if (self.target_block[0] - x)**2 + (self.target_block[1] - y - 1.5)**2 + (self.target_block[2] - z)**2 < 16 and self.bot.world.get_block(x, y, z) == 0 and self.bot.world.get_block(x, y+1, z) == 0 and not (x == self.target_block[0] and y == self.target_block[1] and z == self.target_block[2]):
-                                good_coords.append((x, y, z))
-                                print((self.target_block[0] - x)**2 + (self.target_block[1] - y - 1.5)**2 + (self.target_block[2] - z)**2)
-                
-                new_pos = ()
-
-                for coord in good_coords:
-                    if (self.bot.world.get_block(*coord) == 0) and (self.bot.world.get_block(coord[0], coord[1] + 1, coord[2]) == 0):
-                        new_pos = coord
-                        break
-                
-                if not new_pos:
-                    packet = serverbound.play.ChatPacket()
-                    packet.message = "No valid blocks nearby"
-                    self.bot.connection.write_packet(packet)
-                    self.bot.lock.release()
-                    return False
-
-                print(new_pos)
-
-                while dist >= 4:
-                    r = (new_pos[0] - self.bot.pos['x'], new_pos[1] - self.bot.pos['feet_y'], new_pos[2] - self.bot.pos['z'])
-                            
-                    delta = [int(a/dist*4) for a in r]
-                    print(dist)
-                    self.bot.pos['x'] += delta[0]
-                    self.bot.pos['feet_y'] += delta[1]
-                    self.bot.pos['z'] += delta[2]
-                    self.bot.pos['changed'] = True
-                
-                    self.bot.update_pos()
-                    dist =  ((self.bot.pos['x'] - new_pos[0])**2 + (self.bot.pos['feet_y'] - new_pos[1])**2 + (self.bot.pos['z'] - new_pos[2])**2)**0.5
-                    time.sleep(0.5)
-                
-                self.bot.pos['x'] = new_pos[0]
-                self.bot.pos['feet_y'] = new_pos[1]
-                self.bot.pos['z'] = new_pos[2]
-                self.bot.pos['changed'] = True
-        
-                self.bot.update_pos()
-            
-            while self.bot.world.get_block(math.trunc(self.bot.pos['x']), math.trunc(self.bot.pos['feet_y']) - 1, math.trunc(self.bot.pos['z'])) == 0:
-                self.bot.pos['feet_y'] -= 1
-                self.bot.pos['changed'] = True
-                print('falling {}'.format(self.bot.pos['feet_y']))
-                self.bot.update_pos()
-                time.sleep(0.5)
-
-        def run(self):
-            self.bot.lock.acquire()
-            if self.bot.world.get_block(*self.target_block) == 0:
-                packet = serverbound.play.ChatPacket()
-                packet.message = "{} is air".format(self.target_block)
-                self.bot.connection.write_packet(packet)
-                self.bot.lock.release()
-                return True
-            
-            self.get_to_block()
-            
-
-            time.sleep(0.1)
-
-            packet = DiggingPacket()
-            packet.location = Position(x=self.target_block[0], y=self.target_block[1], z=self.target_block[2])
-            packet.status = 0
-            packet.face = 1
-            self.bot.connection.write_packet(packet)
-            
-            while self.bot.world.get_block(*self.target_block) != 0:
-
-                dist = ((self.target_block[0] - self.bot.pos['x'])**2 + (self.target_block[1] - self.bot.pos['feet_y'] - 1.5)**2 + (self.target_block[2] - self.bot.pos['z'])**2)**0.5
-                if dist >= 4:
-                    self.get_to_block()
-                packet = DiggingPacket()
-                packet.location = Position(x=self.target_block[0], y=self.target_block[1], z=self.target_block[2])
-                packet.status = 2
-                packet.face = 1
-                self.bot.connection.write_packet(packet)
-                
-                time.sleep(0.1)
-            
-            self.bot.lock.release()
-            return True
+    MINING_RADIUS = 5
 
     def __init__(self, connection):
-        self.world = World()
+        with open(os.path.join(str(Path(__file__).absolute().parent), 'block_info.txt'), 'r') as f:
+            text = f.read()
+            block_info = json.loads(text)
+            self.world = World(block_info)
         self.connection = connection
         self.position = [0, 0, 0]
         self.rotation = [0, 0]
         self.lock = Lock()
+        self.break_event = Event()
+        self.break_event_multi = Event()
         self.dimension = 0
+        self.loaded = False
+        self.chat_level = 0
+        self.inventory = Inventory()
+        
+
+    def say(self, message, level=0):
+        if level >= self.chat_level:
+            packet = serverbound.play.ChatPacket()
+            packet.message = message
+            self.connection.write_packet(packet)
     
     def update_position(self, new_pos, new_rot=None):
         self.position = new_pos
@@ -139,6 +64,10 @@ class Bot():
 
     def process_packet(self, packet):
         if type(packet) is clientbound.play.player_position_and_look_packet.PlayerPositionAndLookPacket:
+            if not self.loaded:
+                self.loaded = True
+                self.say('Finished loading')
+
             self.position[0] = packet.x
             self.position[1] = packet.y
             self.position[2] = packet.z
@@ -155,7 +84,7 @@ class Bot():
         elif type(packet) is clientbound.play.block_change_packet.BlockChangePacket:
             
             # print(packet)
-            self.world.update_block(*packet.location, packet.blockId)
+            self.world.update_block(*packet.location, packet.blockId, relative=False)
 
         elif type(packet) is clientbound.play.block_change_packet.MultiBlockChangePacket:
             print(packet)
@@ -168,26 +97,107 @@ class Bot():
         elif type(packet) is JoinGamePacket:
             self.dimension = packet.dimension
 
+        elif type(packet) is SetSlotPacket:
+            self.inventory[packet.slot] = packet.slot_data
+            print(self.inventory[packet.slot])
+
         if type(packet) is Packet:
             # This is a direct instance of the base Packet type, meaning
             # that it is a packet of unknown type, so we do not print it.
             return
     def process_chat_packet(self, packet):
+        
         json_data = json.loads(packet.json_data)
-        message = json_data['with'][-1].split()
+        if len(json_data['with']) == 2 and type(json_data['with'][1]) is str:
+            message = json_data['with'][1].split()    
+            if message[0] == '!bot':
+                try:
+                    if message[1] == 'goto':
+                        self.break_event.clear()
+                        args = {'start' : [math.floor(x) for x in self.position], 'end' : [int(x) for x in message[2:5]]}
+                        for additional_arg in message[5:]:
+                                key, value = additional_arg.split('=')
+                                if key == 'step_length' or key == 'radius':
+                                    args[key] = float(value)
+                                else:
+                                    args[key] = int(value)
+                        if (self.world.get_block(*args['end']) in self.world.block_info['blocks']['passable'] 
+                            and self.world.get_block(args['end'][0], args['end'][1] + 1, args['end'][2]) 
+                                in self.world.block_info['blocks']['passable']
+                                    and self.world.get_block(args['end'][0], args['end'][1] - 1, args['end'][2])
+                                        not in self.world.block_info['blocks']['passable']) or 'radius' in args.keys() and args['radius'] > 1:
+                            alg = AStarAlgorithm(self.world)
+                            
+                            thread = MovingThread('moving', self, alg.find_path, args)
+                            thread.start()
+                        else:
+                            self.say('Target is not passable or block under is passable', 2)
 
-        if message[0] == '!bot':
-            if message[1] == 'goto':
-                target = [int(x) for x in message[2:5]]
+                    elif message[1] == 'mine':
+                        self.break_event.clear()
+                        args = {'start' : [math.floor(x) for x in self.position], 'end' : [int(x) for x in message[2:5]]}
+                        for additional_arg in message[5:]:
+                            key, value = additional_arg.split('=')
+                            if key == 'step_length' or key == 'radius':
+                                args[key] = float(value)
+                            else:
+                                args[key] = int(value)
+                        
+                        if (self.world.get_block(*args['end']) > 0):
+                            alg = AStarAlgorithm(self.world)
+                            thread = MiningThread('mining', self, alg.find_path, args)
+                            thread.start()
+                        else:
+                            self.say('Block is air')
+                    elif message[1] == 'c_level':
+                        self.chat_level = int(message[2])
+                        self.say('Chat level is now {}'.format(self.chat_level), 3)
 
-                alg = AStarAlgorithm(self.world)
-                if len(message) > 5:
-                    path = alg.find_path([int(x) for x in self.position], target, max_distance=int(message[5]))[1:]
-                else:
-                    path = alg.find_path([int(x) for x in self.position], target)[1:]
-                thread = MovingThread('moving', path, self)
-                thread.start()
-                
+                    elif message[1] == 'mineall':
+                        self.break_event.clear()
+                        self.break_event_multi.clear()
+                        block = int(message[2])
+                        args = {}
+
+                        for additional_arg in message[3:]:
+                            key, value = additional_arg.split('=')
+                            if key == 'step_length' or key == 'radius':
+                                args[key] = float(value)
+                            else:
+                                args[key] = int(value)
+
+                        blocks = []
+
+                        chunk_x, chunk_z = self.world.get_chunk_coords(math.floor(self.position[0]), math.floor(self.position[2]))
+                        chunk = self.world.get_chunk_by_chunk_coords(chunk_x, chunk_z)
+                        self.say('Searching {} for {}'.format((chunk_x, chunk_z), block))
+
+                        for x in range(16):
+                            for y in range(256):
+                                for z in range(16):
+                                    if chunk.get_block(x, y, z, True) == block:
+                                        blocks.append([x + chunk_x*16, y, z + chunk_z*16])
+                        
+                        self.say('Found {} blocks'.format(len(blocks)))
+
+                        alg = AStarAlgorithm(self.world)
+                        thread = MultiMiningThread('multimining', self, alg.find_path, blocks, args)
+                        thread.start()
+
+                    elif message[1] == 'break':
+                        self.break_event.set()
+                        self.break_event_multi.set()
+
+                    else:
+                        self.say("I don't get it", 1)
+
+                except Exception as e:
+                    self.say("Something's wrong. Check console", 3)
+                    traceback.print_exc()
+        else:
+            print(len(json_data['with']))
+            print(json_data['with'])
+                    
 
                 
 

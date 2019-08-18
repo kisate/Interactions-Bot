@@ -1,8 +1,9 @@
 import numpy
 
 class World():
-    def __init__(self):
+    def __init__(self, block_info):
         self.chunks = []
+        self.block_info = block_info
     def get_chunk_coords(self, x, z):
         chunk_x = (x // 16)
         chunk_z = (z // 16)
@@ -14,9 +15,9 @@ class World():
         for chunk in self.chunks:
             if chunk.x == chunk_x and chunk.z == chunk_z:
                 return chunk
-    def update_block(self, x, y, z, data):
+    def update_block(self, x, y, z, data, relative=True):
         coords = self.get_chunk_coords(x, z)
-        self.get_chunk_by_chunk_coords(*coords).update_block(x, y, z, data)
+        self.get_chunk_by_chunk_coords(*coords).update_block(x, y, z, data, relative)
     def update_block_multi(self, chunk_x, chunk_z, records):
         chunk = self.get_chunk_by_chunk_coords(chunk_x, chunk_z)
         chunk.update_block_multi(records)
