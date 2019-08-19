@@ -11,6 +11,7 @@ from minecraft.networking.types import (
 from packets.serverbound.play import *
 from world import World
 from .inventory import Inventory
+from .exceptions import NoToolException
 
 import json, time, sys, os
 import math
@@ -41,13 +42,14 @@ class Bot():
         self.held_slot = 0
 
     def say(self, message, level=0):
-        if level >= 0 and level >= self.chat_level:
+        if level == -1 or self.chat_level == -1:
+            print("Redirecting say to console: {}".format(message))
+    
+        elif level >= 0 and level >= self.chat_level:
             packet = serverbound.play.ChatPacket()
             packet.message = message
             self.connection.write_packet(packet)
-        elif level == -1:
-            print("Redirecting say to console: {}".format(message))
-    
+       
     def update_position(self, new_pos, new_rot=None):
         self.position = new_pos
         if new_rot is not None:
@@ -316,7 +318,7 @@ class Bot():
 
     def mine_with_tool(self, algorithm, args, setup=False):
         if setup and not self.set_up_tools():
-            return
+            return -1
         
         tool_slots = {
             0 : 3,
@@ -329,17 +331,23 @@ class Bot():
 
         if tool == -1:
             self.say('{} is unbreakable'.format(args['end']), 1)
-            return
+            return -1
         if tool not in tool_slots.keys():
             self.say("Don't have {} slot".format(self.world.info['items']['tool_ids'][str(tool)]), 1)
-            return
+            return -1
         
         tool_slot = tool_slots[tool]
 
-        self.hold(tool_slot)
+        if self.held_slot != tool_slot:
+            self.hold(tool_slot)
+
+        if tool != 0 and self.inventory[36 + self.held_slot].item_id not in self.world.info['items'][self.world.info['items']['tool_ids'][str(tool)]]:
+            self.set_up_tools()
+            if self.inventory[36 + self.held_slot].item_id not in self.world.info['items'][self.world.info['items']['tool_ids'][str(tool)]]:
+                raise NoToolException(self.world.info['items']['tool_ids'][str(tool)])
 
         thread = MiningThread('mining', self, algorithm, args)
-        thread.run()
+        return thread.run()
 
         
 
