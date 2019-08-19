@@ -34,14 +34,16 @@ button_delay = 0.1
 
 def main():
 
-    connection = Connection(address, port, username='bot{:04d}'.format(random.randint(0, 1000)))
+    # connection = Connection(address, port, username='bot{:04d}'.format(random.randint(0, 1000)))
+    connection = Connection(address, port, username='test_bot2')
     bot = Bot(connection)
     
     def print_outgoing(packet):
-        print('<-- %s' % packet, file=sys.stderr)
+        if type(packet) is not my_svbnd_play.DiggingPacket:
+            print('<-- %s' % packet, file=sys.stderr)
 
     connection.register_packet_listener(
-        bot.process_packet, Packet, early=True)
+        bot.process_packet, Packet)
     connection.register_packet_listener(
         print_outgoing, Packet, outgoing=True)
 

@@ -1,6 +1,7 @@
 from minecraft.networking.packets.serverbound.play import ChatPacket
-from minecraft.networking.types import Position
-from packets.serverbound.play import DiggingPacket
+from minecraft.networking.types import Position, Slot
+
+from packets.serverbound.play import DiggingPacket, ClickWindowPacket
 
 
 from threading import Thread, Lock
@@ -126,27 +127,48 @@ class MiningThread(Thread):
 
 
 class MultiMiningThread(Thread):
-    def __init__(self, name, bot, algorithm, blocks, args):
+
+    @staticmethod
+    def clever_comparator(p1, p2, far_distance=10000):
+        distance = sum([(p1[i] - p2[i])**2 for i in range(3)])
+        if p2[1] - floor(p1[1]) not in [0, 1]:
+            distance += far_distance
+        return distance
+
+    def __init__(self, name, bot, algorithm, blocks, args, with_tool=True, comparator=None):
         Thread.__init__(self)
         self.name = name
         self.bot = bot
         self.algorithm = algorithm
         self.blocks = blocks
         self.args = args
+        self.with_tool = with_tool
+        self.comparator = comparator
+        if comparator == None:
+            self.comparator = self.clever_comparator
         
-    
     def run(self):
-        
+
+        if self.with_tool and not self.bot.set_up_tools():
+            self.bot.say('Could not setup')
+            return
+
         self.bot.say('Starting multi mining')
         self.bot.say('Setting chat level to 2 to avoid kicking')
-        self.bot.chat_level = 2
+        self.bot.chat_level = 2        
 
-        for block in self.blocks:
+        while self.blocks:
+
+            self.blocks.sort(key=lambda x: self.comparator(self.bot.position, x), reverse=True)
+            block = self.blocks.pop()
             self.args['start'] = [floor(x) for x in self.bot.position]
             self.args['end'] = block
 
-            thread = MiningThread('mining', self.bot, self.algorithm, self.args)
-            thread.run()
+            if self.with_tool:
+                self.bot.mine_with_tool(self.algorithm, self.args)
+            else:
+                thread = MiningThread('mining', self.bot, self.algorithm, self.args)
+                thread.run()
 
             if self.bot.break_event.isSet() or self.bot.break_event_multi.isSet():
                     self.bot.break_event.clear()
@@ -158,5 +180,42 @@ class MultiMiningThread(Thread):
         self.bot.say('Chat level is 0')
         self.bot.say('Finished multi mining')
 
+class ItemSwapThread(Thread):
+    def __init__(self, name, bot, first_slot, second_slot):
+        Thread.__init__(self)
+        self.name = name
+        self.bot = bot
+        self.first_slot = first_slot
+        self.second_slot = second_slot
+        print("First : {}, Second : {}".format(first_slot, second_slot))
+    
+    def get_left_click_packet(self, slot, empty=False):
+        packet = ClickWindowPacket()
+        packet.window_id = 0
+        packet.slot = slot
+        packet.button = 0
+        packet.action_number = self.bot.inventory.action_number
+        packet.mode = 0
+        if empty:
+            packet.clicked_item = Slot(-1)
+        else:
+            packet.clicked_item = self.bot.inventory[slot]
+        self.bot.inventory.action_number += 1
 
-        
+        return packet
+
+    def run(self):
+        packet = self.get_left_click_packet(self.first_slot)
+        first_item = packet.clicked_item
+        self.bot.connection.write_packet(packet)
+        self.bot.inventory[self.first_slot] = Slot(-1)
+        sleep(0.1)
+        packet = self.get_left_click_packet(self.second_slot)
+        self.bot.connection.write_packet(packet)
+        second_item = packet.clicked_item
+        self.bot.inventory[self.second_slot] = first_item
+        sleep(0.1)
+        packet = self.get_left_click_packet(self.first_slot, empty=True)
+        self.bot.connection.write_packet(packet)
+        self.bot.inventory[self.first_slot] = second_item
+        sleep(0.1)

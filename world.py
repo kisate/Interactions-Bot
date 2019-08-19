@@ -1,9 +1,9 @@
 import numpy
 
 class World():
-    def __init__(self, block_info):
+    def __init__(self, info):
         self.chunks = []
-        self.block_info = block_info
+        self.info = info
     def get_chunk_coords(self, x, z):
         chunk_x = (x // 16)
         chunk_z = (z // 16)

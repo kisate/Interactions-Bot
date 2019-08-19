@@ -60,9 +60,9 @@ class AStarAlgorithm(Algorithm):
         for x in range(target[0] - step_length_int, target[0] + step_length_int + 1):
             for y in range(target[1] - step_length_int, target[1] + step_length_int + 1):
                 for z in range(target[2] - step_length_int, target[2] + step_length_int + 1):
-                    if (self.world.get_block(x, y, z) in self.world.block_info['blocks']['passable'] 
-                        and self.world.get_block(x, y + 1, z) in self.world.block_info['blocks']['passable']
-                            and not (self.world.get_block(x, y - 1, z) in self.world.block_info['blocks']['passable'])):
+                    if (self.world.get_block(x, y, z) in self.world.info['blocks']['passable'] 
+                        and self.world.get_block(x, y + 1, z) in self.world.info['blocks']['passable']
+                            and not (self.world.get_block(x, y - 1, z) in self.world.info['blocks']['passable'])):
                         distance_to_travel = ((x - target[0])**2 + (y - target[1])**2 + (z - target[2])**2)**0.5
                         if distance_to_travel <= step_length or (y != target[1] and distance_to_travel <= step_length*2 and distance_to_travel <= 9):
                             distance_to_end = ((x + pivot[0] - end[0])**2 + (y + pivot[1]- end[1])**2 + (z + pivot[2] - end[2])**2)**0.5
