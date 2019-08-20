@@ -35,7 +35,7 @@ button_delay = 0.1
 def main():
 
     # connection = Connection(address, port, username='bot{:04d}'.format(random.randint(0, 1000)))
-    connection = Connection(address, port, username='test_bot2')
+    connection = Connection(address, port, username='test_bot3')
     bot = Bot(connection)
     
     def print_outgoing(packet):

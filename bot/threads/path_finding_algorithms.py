@@ -1,12 +1,72 @@
 from heapq import heappush, heappop
 from math import ceil
+import numpy as np
 
 class Algorithm():
     def __init__(self, world):
         self.world = world
     def find_path(self, start, end, step_length=8):
         return []
-    
+    @staticmethod
+    def walk_priority(world, current, target, end, start, traveled_distance, step_length, max_distance, pivot):
+        if (world.get_block(*np.sum([current, [0, 0, 0]], axis=0)) in world.info['blocks']['passable']
+            and world.get_block(*np.sum([current, [0, 1, 0]], axis=0)) in world.info['blocks']['passable']
+                and not (world.get_block(*np.sum([current, [0, -1, 0]], axis=0)) in world.info['blocks']['passable'] 
+                    and world.get_block(*np.sum([target, [0, -1, 0]], axis=0)) in world.info['blocks']['passable'])):
+                
+                distance_to_travel = np.linalg.norm(np.array(current)-np.array(target))
+                if distance_to_travel <= step_length or (current[1] != target[1] and distance_to_travel <= step_length*2 and distance_to_travel <= 9):
+                    distance_to_end = np.linalg.norm(np.array(np.sum([current, pivot], axis=0))-np.array(end))
+                    if distance_to_end <= max_distance:
+                        priority = [traveled_distance + distance_to_travel + distance_to_end, traveled_distance + distance_to_travel]
+
+                        if world.get_block(*np.sum([current, [0, 0, 0]], axis=0)) not in world.info['blocks']['passable']:
+                            priority[0] += 20
+                            priority[1] += 20
+                        if world.get_block(*np.sum([current, [0, 1, 0]], axis=0)) not in world.info['blocks']['passable']:
+                            priority[0] += 20
+                            priority[1] += 20
+
+                        return priority
+        return -1
+
+    @staticmethod
+    def walk_and_mine_priority(world, current, target, end, start, traveled_distance, step_length, max_distance, pivot):
+        if (world.get_block(*np.sum([current, [0, 0, 0]], axis=0)) not in world.info['blocks']['unbreakable']
+            and world.get_block(*np.sum([current, [0, 1, 0]], axis=0)) not in world.info['blocks']['unbreakable']
+                and not (world.get_block(*np.sum([current, [0, -1, 0]], axis=0)) in world.info['blocks']['passable'] 
+                    and world.get_block(*np.sum([target, [0, -1, 0]], axis=0)) in world.info['blocks']['passable']
+                    and (world.get_block(*np.sum([current, [0, 0, 0]], axis=0)) not in world.info['blocks']['passable']
+                    or world.get_block(*np.sum([current, [0, 1, 0]], axis=0)) not in world.info['blocks']['passable']))):
+                
+                distance_to_travel = np.linalg.norm(np.array(current)-np.array(target))
+                if distance_to_travel <= step_length:
+                    distance_to_end = np.linalg.norm(np.array(np.sum([current, pivot], axis=0))-np.array(end))
+                    if distance_to_end <= max_distance:
+                        priority = [traveled_distance + distance_to_travel + distance_to_end, traveled_distance + distance_to_travel]
+
+                        if world.get_block(*np.sum([current, [0, 0, 0]], axis=0)) not in world.info['blocks']['passable']:
+                            priority[0] += 5
+                            # priority[1] += 5
+                            print("1{}".format(current))
+                        if world.get_block(*np.sum([current, [0, 1, 0]], axis=0)) not in world.info['blocks']['passable']:
+                            priority[0] += 5
+                            # priority[1] += 5
+                            print("2{}".format(current))
+
+                        return priority
+        return -1
+
+    @staticmethod
+    def get_actions(world, target):
+        actions = []
+        if world.get_block(*target) not in world.info['blocks']['passable']:
+            actions.append(2)
+        if world.get_block(*np.sum([target, [0, 1, 0]], axis=0)) not in world.info['blocks']['passable']:
+            actions.append(3)
+        actions.append(0)
+
+        return actions
 
 class StraightForwardAlgorithm(Algorithm):
     def find_path(self, start, end, step_length=8):
@@ -55,20 +115,14 @@ class StraightForwardAlgorithm(Algorithm):
 
 class AStarAlgorithm(Algorithm):
 
-    def expand(self, visited, heap, target, end, step_length, max_distance, pivot):
+    def expand(self, visited, heap, target, start, end, traveled_distance, step_length, max_distance, pivot, priority_function=Algorithm.walk_and_mine_priority):
         step_length_int = ceil(step_length)
         for x in range(target[0] - step_length_int, target[0] + step_length_int + 1):
             for y in range(target[1] - step_length_int, target[1] + step_length_int + 1):
                 for z in range(target[2] - step_length_int, target[2] + step_length_int + 1):
-                    if (self.world.get_block(x, y, z) in self.world.info['blocks']['passable'] 
-                        and self.world.get_block(x, y + 1, z) in self.world.info['blocks']['passable']
-                            and not (self.world.get_block(x, y - 1, z) in self.world.info['blocks']['passable'])):
-                        distance_to_travel = ((x - target[0])**2 + (y - target[1])**2 + (z - target[2])**2)**0.5
-                        if distance_to_travel <= step_length or (y != target[1] and distance_to_travel <= step_length*2 and distance_to_travel <= 9):
-                            distance_to_end = ((x + pivot[0] - end[0])**2 + (y + pivot[1]- end[1])**2 + (z + pivot[2] - end[2])**2)**0.5
-                            if distance_to_end <= max_distance:
-                                if self.check_and_add(visited, (x, y, z), target):
-                                    heappush(heap, (distance_to_end, (x, y, z)))
+                    priority = priority_function(self.world, [x, y, z], target, end, start, traveled_distance, step_length, max_distance, pivot)
+                    if priority != -1 and self.check_and_add(visited, [x, y, z], target):
+                        heappush(heap, (priority[0], ((x, y, z), priority[1])))
    
     def check_and_add(self, visited, target, parent):
         if target[0] not in visited.keys():
@@ -82,7 +136,7 @@ class AStarAlgorithm(Algorithm):
             return True
         return False
 
-    def find_path(self, start, end, step_length=1, max_distance=500, radius=0.5, pivot=[0, 0, 0], drop_after=500):
+    def find_path(self, start, end, step_length=1, max_distance=500, radius=0.5, pivot=[0, 0, 0], drop_after=1000):
         """
         Returns list of blocks on the path and actions to be done with them.
         0 -- tp
@@ -92,15 +146,16 @@ class AStarAlgorithm(Algorithm):
         visited = {}
         self.check_and_add(visited, start, -1)
         r = [end[i] - (start[i] + pivot[i]) for i in range(3)]
-        dist = sum([x**2 for x in r])**0.5  
-        heappush(heap, (dist, start))
+        dist_end = sum([x**2 for x in r])**0.5 
+        heappush(heap, (dist_end, (start, 0)))
         last_step = []
         found = False
         bad_moves_counter = 0
-        last_distance = dist
+        last_distance = dist_end
 
         while heap:
-            distance, current_step = heappop(heap)
+            distance, element = heappop(heap)
+            current_step, traveled_distance = element
             if distance >= last_distance:
                 bad_moves_counter += 1
             else:
@@ -113,16 +168,17 @@ class AStarAlgorithm(Algorithm):
                 break
 
             # print('Distance is {}, max is {}, len is {}, counter is {}'.format(distance, max_distance, len(heap), bad_moves_counter))
-            if (sum([(end[i] - (current_step[i] + pivot[i]))**2 for i in range(3)]))**0.5 < radius:  
+            if np.linalg.norm(np.array(np.sum([current_step, pivot], axis=0))-np.array(end)) < radius:  
                 found = True
                 last_step = current_step
                 break
-            self.expand(visited, heap, current_step, end, step_length, max_distance, pivot)
+            self.expand(visited, heap, current_step, start, end, traveled_distance, step_length, max_distance, pivot)
         
         if found:
             current_step = last_step
             while current_step != -1:
-                path.append((current_step, [0]))
+                actions = Algorithm.get_actions(self.world, current_step)
+                path.append((current_step, actions))
                 current_step = visited[current_step[0]][current_step[1]][current_step[2]]
             
             path.reverse()

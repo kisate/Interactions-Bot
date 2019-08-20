@@ -4,6 +4,7 @@ from minecraft.networking.types import Position, Slot
 from packets.serverbound.play import DiggingPacket, ClickWindowPacket
 from bot.exceptions import NoToolException
 
+import numpy as np
 from threading import Thread, Lock
 from time import sleep
 from math import floor
@@ -38,16 +39,31 @@ class MovingThread(Thread):
 
                 for step in result[0][1:]:
                     interval = self.time_to_wait*result[1]/8
+                    print("{} {}".format(result[0][1:], step))
 
                     for action in step[1]:
                         if action == 0:
                             self.bot.update_position([step[0][0]+0.5, step[0][1], step[0][2]+0.5])
-                            sleep(interval)
+                        elif action == 2:
+                            self.bot.lock.release()
+                            res = self.bot.mine_with_tool(self.algorithm, {'start' : [floor(x) for x in self.bot.position], 'end' : step[0]}, setup=True)
+                            self.bot.lock.acquire()
+                            if not res or res == -1:
+                                self.bot.say('Could not do action {} on block {}'.format(action, step[0]), -1)
+                                return
+                        elif action == 3:
+                            self.bot.lock.release()
+                            res = self.bot.mine_with_tool(self.algorithm, {'start' : [floor(x) for x in self.bot.position], 'end' : np.sum([step[0], [0, 1, 0]], axis=0)}, setup=True)
+                            self.bot.lock.acquire()
+                            if not res or res == -1:
+                                self.bot.say('Could not do action {} on block {}'.format(action, step[0]), -1)
+                                return
 
                         if self.bot.break_event.isSet():
                             self.bot.break_event.clear()
                             self.bot.say('Stopped', 1)
                             return
+                        sleep(interval)
                     
 
 
@@ -91,13 +107,13 @@ class MiningThread(Thread):
         self.args['radius'] = self.bot.MINING_RADIUS
         if 'step_length' not in self.args.keys():
             self.args['step_length'] = 1
-            self.args['pivot'] = [0, 1.5, 0]
+        self.args['pivot'] = [0.5, 1.5, 0.5]
         
         thread = MovingThread('moving', self.bot, self.algorithm, self.args, time_to_wait=time_to_wait)
         thread.run()
 
-        if sum((self.bot.position[i] + self.args['pivot'][i] - self.args['end'][i])**2 for i in range(3))**0.5 > self.bot.MINING_RADIUS:
-            # print("Distance to block is {}".format(sum((self.bot.position[i] + self.args['pivot'][i] - self.args['end'][i])**2 for i in range(3))**0.5))
+        if sum((floor(self.bot.position[i]) + self.args['pivot'][i] - self.args['end'][i])**2 for i in range(3))**0.5 > self.bot.MINING_RADIUS:
+            print("Distance to block is {}".format(sum((floor(self.bot.position[i]) + self.args['pivot'][i] - self.args['end'][i])**2 for i in range(3))**0.5))
             self.bot.say('Could not get to block {}. My position is {}'.format(self.args['end'], self.bot.position), 2)
             return False
         
@@ -161,10 +177,11 @@ class MultiMiningThread(Thread):
             self.bot.say('Setting chat level to -1 to avoid kicking')
             self.bot.chat_level = -1        
         
-        self.blocks.sort(key=lambda x: self.comparator(self.bot.position, x, far_distance=self.bot.MINING_RADIUS**2), reverse=True)
+        self.blocks.sort(key=lambda x: self.comparator(self.bot.position, x), reverse=True)
 
         while self.blocks:
 
+            self.blocks.sort(key=lambda x: self.comparator(self.bot.position, x), reverse=True)
             block = self.blocks.pop()
             self.args['start'] = [floor(x) for x in self.bot.position]
             self.args['end'] = block
@@ -174,7 +191,6 @@ class MultiMiningThread(Thread):
                     result = self.bot.mine_with_tool(self.algorithm, self.args)
                     if result != -1 and not result:
                         self.blocks.append(block)
-                        self.blocks.sort(key=lambda x: self.comparator(self.bot.position, x, far_distance=self.bot.MINING_RADIUS**2), reverse=True)
 
                 except NoToolException as e:
                     self.bot.chat_level = 0
@@ -185,7 +201,6 @@ class MultiMiningThread(Thread):
                 thread = MiningThread('mining', self.bot, self.algorithm, self.args)
                 if not thread.run(time_to_wait=0.2):
                     self.blocks.append(block)
-                    self.blocks.sort(key=lambda x: self.comparator(self.bot.position, x, far_distance=self.bot.MINING_RADIUS**2), reverse=True)
 
             if self.bot.break_event.isSet() or self.bot.break_event_multi.isSet():
                     self.bot.break_event.clear()

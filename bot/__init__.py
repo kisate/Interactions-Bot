@@ -137,11 +137,12 @@ class Bot():
                                     args[key] = float(value)
                                 else:
                                     args[key] = int(value)
-                        if (self.world.get_block(*args['end']) in self.world.info['blocks']['passable'] 
-                            and self.world.get_block(args['end'][0], args['end'][1] + 1, args['end'][2]) 
-                                in self.world.info['blocks']['passable']
-                                    and self.world.get_block(args['end'][0], args['end'][1] - 1, args['end'][2])
-                                        not in self.world.info['blocks']['passable']) or 'radius' in args.keys() and args['radius'] > 1:
+                        # if (self.world.get_block(*args['end']) in self.world.info['blocks']['passable'] 
+                        #     and self.world.get_block(args['end'][0], args['end'][1] + 1, args['end'][2]) 
+                        #         in self.world.info['blocks']['passable']
+                        #             and self.world.get_block(args['end'][0], args['end'][1] - 1, args['end'][2])
+                        #                 not in self.world.info['blocks']['passable']) or 'radius' in args.keys() and args['radius'] > 1:
+                        if (True):
                             alg = AStarAlgorithm(self.world)
                             
                             thread = MovingThread('moving', self, alg.find_path, args)
