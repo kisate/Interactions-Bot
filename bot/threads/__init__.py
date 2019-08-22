@@ -9,21 +9,21 @@ from threading import Thread, Lock
 from time import sleep
 from math import floor
 import traceback
+from .path_finding_algorithm import Algorithm
 
 class MovingThread(Thread):
-        def __init__(self, name, bot, algorithm, args, time_to_wait=0.4):
+        def __init__(self, name, bot, args, time_to_wait=0.4):
             Thread.__init__(self)
             self.name = name
             self.bot = bot
             self.args = args
-            self.algorithm = algorithm
             self.time_to_wait = time_to_wait
             
         def run(self):
             with self.bot.lock:
                 try:
                     self.bot.say('Searching path to {}'.format(self.args['end']))
-                    result = self.algorithm(**self.args)
+                    result = Algorithm.find_path(self.bot.world, **self.args)
                 except Exception as e:
                     print(e)
                     traceback.print_exc()
@@ -32,28 +32,26 @@ class MovingThread(Thread):
                     
                 if result is None:
                     self.bot.say("No path found. (Could be too long)", 1)
-
                     return
 
                 self.bot.say('Moving to {}'.format(result[0][-1]))
 
                 for step in result[0][1:]:
                     interval = self.time_to_wait*result[1]/8
-                    print("{} {}".format(result[0][1:], step))
 
                     for action in step[1]:
                         if action == 0:
                             self.bot.update_position([step[0][0]+0.5, step[0][1], step[0][2]+0.5])
                         elif action == 2:
                             self.bot.lock.release()
-                            res = self.bot.mine_with_tool(self.algorithm, {'start' : [floor(x) for x in self.bot.position], 'end' : step[0]}, setup=True)
+                            res = self.bot.mine_with_tool(step[0], setup=True)
                             self.bot.lock.acquire()
                             if not res or res == -1:
                                 self.bot.say('Could not do action {} on block {}'.format(action, step[0]), -1)
                                 return
                         elif action == 3:
                             self.bot.lock.release()
-                            res = self.bot.mine_with_tool(self.algorithm, {'start' : [floor(x) for x in self.bot.position], 'end' : np.sum([step[0], [0, 1, 0]], axis=0)}, setup=True)
+                            res = self.bot.mine_with_tool(np.sum([[0, 1, 0], step[0]], axis=0), setup=True)
                             self.bot.lock.acquire()
                             if not res or res == -1:
                                 self.bot.say('Could not do action {} on block {}'.format(action, step[0]), -1)
@@ -96,39 +94,25 @@ class FallingThread(Thread):
                     return
 
 class MiningThread(Thread):
-    def __init__(self, name, bot, algorithm, args):
+    def __init__(self, name, bot, target):
         Thread.__init__(self)
         self.name = name
         self.bot = bot
-        self.algorithm = algorithm
-        self.args = args
+        self.target = target
     
     def run(self, time_to_wait=0.4):
-        self.args['radius'] = self.bot.MINING_RADIUS
-        if 'step_length' not in self.args.keys():
-            self.args['step_length'] = 1
-        self.args['pivot'] = [0.5, 1.5, 0.5]
-        
-        thread = MovingThread('moving', self.bot, self.algorithm, self.args, time_to_wait=time_to_wait)
-        thread.run()
-
-        if sum((floor(self.bot.position[i]) + self.args['pivot'][i] - self.args['end'][i])**2 for i in range(3))**0.5 > self.bot.MINING_RADIUS:
-            print("Distance to block is {}".format(sum((floor(self.bot.position[i]) + self.args['pivot'][i] - self.args['end'][i])**2 for i in range(3))**0.5))
-            self.bot.say('Could not get to block {}. My position is {}'.format(self.args['end'], self.bot.position), 2)
-            return False
-        
         with self.bot.lock:
-            self.bot.say('Mining {}. It is {}'.format(self.args['end'], self.bot.world.get_block(*self.args['end'])))
+            self.bot.say('Mining {}. It is {}'.format(self.target, self.bot.world.get_block(*self.target)))
 
             packet = DiggingPacket()
-            packet.location = Position(x=self.args['end'][0], y=self.args['end'][1], z=self.args['end'][2])
+            packet.location = Position(x=self.target[0], y=self.target[1], z=self.target[2])
             packet.status = 0
             packet.face = 1
             self.bot.connection.write_packet(packet)
 
-            while self.bot.world.get_block(*self.args['end']) != 0:
+            while self.bot.world.get_block(*self.target) != 0:
                 packet = DiggingPacket()
-                packet.location = Position(x=self.args['end'][0], y=self.args['end'][1], z=self.args['end'][2])
+                packet.location = Position(x=self.target[0], y=self.target[1], z=self.target[2])
                 packet.status = 2
                 packet.face = 1
                 self.bot.connection.write_packet(packet)
@@ -154,11 +138,10 @@ class MultiMiningThread(Thread):
             distance += far_distance
         return distance
 
-    def __init__(self, name, bot, algorithm, blocks, args, with_tool=True, comparator=None):
+    def __init__(self, name, bot, blocks, args, with_tool=True, comparator=None):
         Thread.__init__(self)
         self.name = name
         self.bot = bot
-        self.algorithm = algorithm
         self.blocks = blocks
         self.args = args
         self.with_tool = with_tool
@@ -175,7 +158,7 @@ class MultiMiningThread(Thread):
         self.bot.say('Starting multi mining')
         if self.bot.chat_level in range(0, 3):
             self.bot.say('Setting chat level to -1 to avoid kicking')
-            self.bot.chat_level = -1        
+            self.bot.chat_level = -1       
         
         self.blocks.sort(key=lambda x: self.comparator(self.bot.position, x), reverse=True)
 
@@ -188,7 +171,8 @@ class MultiMiningThread(Thread):
 
             if self.with_tool:
                 try: 
-                    result = self.bot.mine_with_tool(self.algorithm, self.args)
+                    thread = MoveToAndMineThread('mining', self.bot, self.args)
+                    result = thread.run(time_to_wait=0.2)
                     if result != -1 and not result:
                         self.blocks.append(block)
 
@@ -198,7 +182,7 @@ class MultiMiningThread(Thread):
                     print("No tool of {} type, aborting.".format(e.tool))
                     break
             else:
-                thread = MiningThread('mining', self.bot, self.algorithm, self.args)
+                thread = MoveToAndMineThread('mining', self.bot, self.args, with_tool=False)
                 if not thread.run(time_to_wait=0.2):
                     self.blocks.append(block)
 
@@ -208,8 +192,8 @@ class MultiMiningThread(Thread):
                     self.bot.chat_level = 0
                     self.bot.say('Stopped', 3)
                     return
-        self.bot.chat_level = 0
-        self.bot.say('Chat level is 0')
+        self.bot.chat_level = 1
+        self.bot.say('Chat level is 1')
         self.bot.say('Finished multi mining')
 
 class ItemSwapThread(Thread):
@@ -251,3 +235,31 @@ class ItemSwapThread(Thread):
         self.bot.connection.write_packet(packet)
         self.bot.inventory[self.first_slot] = second_item
         sleep(0.1)
+
+class MoveToAndMineThread(Thread):
+    def __init__(self, name, bot, args, with_tool=True):
+        Thread.__init__(self)
+        self.name = name
+        self.bot = bot
+        self.args = args
+        self.with_tool = with_tool
+    
+    def run(self, time_to_wait=0.4):
+        self.args['radius'] = self.bot.MINING_RADIUS
+        if 'step_length' not in self.args.keys():
+            self.args['step_length'] = 1
+        self.args['pivot'] = [0.5, 1.5, 0.5]
+        self.args['priority_function'] = 'wmp'
+        
+        thread = MovingThread('moving', self.bot, self.args, time_to_wait=time_to_wait)
+        thread.run()
+
+        if sum((floor(self.bot.position[i]) + self.args['pivot'][i] - self.args['end'][i])**2 for i in range(3))**0.5 > self.bot.MINING_RADIUS:
+            print("Distance to block is {}".format(sum((floor(self.bot.position[i]) + self.args['pivot'][i] - self.args['end'][i])**2 for i in range(3))**0.5))
+            self.bot.say('Could not get to block {}. My position is {}'.format(self.args['end'], self.bot.position), 2)
+            return False
+        
+        if self.with_tool:
+            return self.bot.mine_with_tool(self.args['end'])
+        else:
+            return MiningThread('mining', self.bot, self.args['end']).run()

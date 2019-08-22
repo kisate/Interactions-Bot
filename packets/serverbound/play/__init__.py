@@ -55,3 +55,18 @@ class HeldItemChangePacket(Packet):
     definition = [
         {'slot' : Short}
     ]
+
+class PlayerBlockPlacementPacket(Packet):
+    @staticmethod
+    def get_id(context):
+        return 0x1F
+    
+    packet_name = 'player block placement'
+    definition = [
+        {'location' : Position},
+        {'face' : VarInt},
+        {'hand' : VarInt},
+        {'cursor_x' : Float},
+        {'cursor_y' : Float},
+        {'cursor_z' : Float},
+    ]

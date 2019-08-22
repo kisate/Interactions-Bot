@@ -1,4 +1,4 @@
-from bot.threads.path_finding_algorithms import StraightForwardAlgorithm, AStarAlgorithm
+from bot.threads.path_finding_algorithm import Algorithm
 from bot.threads import *
 
 import random
@@ -20,16 +20,17 @@ from threading import Thread, Lock, Event
 import traceback
 
 from pathlib import Path
-
+import pickle
 
 class Bot():
     MINING_RADIUS = 5
-    def __init__(self, connection):
+    def __init__(self, connection, name):
         with open(os.path.join(str(Path(__file__).absolute().parent), 'id_info.txt'), 'r') as f:
             text = f.read()
             info = json.loads(text)
             self.world = World(info)
         self.connection = connection
+        self.name = name
         self.position = [0, 0, 0]
         self.rotation = [0, 0]
         self.lock = Lock()
@@ -37,9 +38,12 @@ class Bot():
         self.break_event_multi = Event()
         self.dimension = 0
         self.loaded = False
-        self.chat_level = 0
+        self.loaded_health = False
+        self.chat_level = 2
         self.inventory = Inventory()
         self.held_slot = 0
+        self.health = 20
+        self.food = 20
 
     def say(self, message, level=0):
         if level == -1 or self.chat_level == -1:
@@ -68,7 +72,9 @@ class Bot():
         if type(packet) is clientbound.play.player_position_and_look_packet.PlayerPositionAndLookPacket:
             if not self.loaded:
                 self.loaded = True
-                self.say('Finished loading')
+                self.say('Finished loading', 3)
+                with open('world.data', 'wb') as f:
+                    pickle.dump(self.world, f)
 
             self.position[0] = packet.x
             self.position[1] = packet.y
@@ -81,7 +87,8 @@ class Bot():
         
         elif type(packet) is clientbound.play.chunk_data_packet.ChunkDataPacket:
             packet.chunk.read_data(packet.data, self.dimension)
-            self.world.chunks.append(packet.chunk)
+            # self.world.chunks.append(packet.chunk)
+            self.world.add_chunk(packet.chunk)
             # print("{} {}".format(packet.number_of_entities, packet.chunk.entities))
 
         elif type(packet) is clientbound.play.block_change_packet.BlockChangePacket:
@@ -117,6 +124,18 @@ class Bot():
                 self.connection.write_packet(response)
             # print(packet)
 
+        elif type(packet) is clientbound.play.UpdateHealthPacket:
+            
+            if self.health > packet.health and self.loaded_health:
+                _packet = serverbound.play.ChatPacket()
+                _packet.message = f'/teleport {self.name} ~ 100 ~'
+                self.connection.write_packet(_packet)
+                self.say(f"I've been hurt. My health is {packet.health}", 4)
+
+            self.health = packet.health
+            self.food = packet.food
+            self.loaded_health = True
+
         if type(packet) is Packet:
             # This is a direct instance of the base Packet type, meaning
             # that it is a packet of unknown type, so we do not print it.
@@ -124,7 +143,7 @@ class Bot():
     def process_chat_packet(self, packet):
         
         json_data = json.loads(packet.json_data)
-        if len(json_data['with']) == 2 and type(json_data['with'][1]) is str:
+        if 'with' in json_data.keys() and len(json_data['with']) == 2 and type(json_data['with'][1]) is str:
             message = json_data['with'][1].split()    
             if message[0] == '!bot':
                 try:
@@ -132,20 +151,19 @@ class Bot():
                         self.break_event.clear()
                         args = {'start' : [math.floor(x) for x in self.position], 'end' : [int(x) for x in message[2:5]]}
                         for additional_arg in message[5:]:
-                                key, value = additional_arg.split('=')
-                                if key == 'step_length' or key == 'radius':
-                                    args[key] = float(value)
-                                else:
-                                    args[key] = int(value)
+                            key, value = additional_arg.split('=')
+                            args[key] = value
+                                # if key == 'step_length' or key == 'radius':
+                                #     args[key] = float(value)
+                                # else:
+                                #     args[key] = int(value)
                         # if (self.world.get_block(*args['end']) in self.world.info['blocks']['passable'] 
                         #     and self.world.get_block(args['end'][0], args['end'][1] + 1, args['end'][2]) 
                         #         in self.world.info['blocks']['passable']
                         #             and self.world.get_block(args['end'][0], args['end'][1] - 1, args['end'][2])
                         #                 not in self.world.info['blocks']['passable']) or 'radius' in args.keys() and args['radius'] > 1:
                         if (True):
-                            alg = AStarAlgorithm(self.world)
-                            
-                            thread = MovingThread('moving', self, alg.find_path, args)
+                            thread = MovingThread('moving', self, args)
                             thread.start()
                         else:
                             self.say('Target is not passable or block under is passable', 2)
@@ -161,8 +179,7 @@ class Bot():
                                 args[key] = int(value)
                         
                         if (self.world.get_block(*args['end']) > 0):
-                            alg = AStarAlgorithm(self.world)
-                            thread = MiningThread('mining', self, alg.find_path, args)
+                            thread = MoveToAndMineThread('move to and mind', self, args)
                             thread.start()
                         else:
                             self.say('Block is air')
@@ -197,8 +214,7 @@ class Bot():
                         
                         self.say('Found {} blocks'.format(len(blocks)))
 
-                        alg = AStarAlgorithm(self.world)
-                        thread = MultiMiningThread('multimining', self, alg.find_path, blocks, args)
+                        thread = MultiMiningThread('multimining', self, blocks, args)
                         thread.start()
 
                     elif message[1] == 'break':
@@ -245,8 +261,7 @@ class Bot():
                         
                         self.say('Found {} blocks'.format(len(blocks)))
 
-                        alg = AStarAlgorithm(self.world)
-                        thread = MultiMiningThread('multimining', self, alg.find_path, blocks, args)
+                        thread = MultiMiningThread('multimining', self, blocks, args)
                         thread.start()
 
                     elif message[1] == 'minerect':
@@ -272,9 +287,31 @@ class Bot():
 
                         self.say('Found {} blocks'.format(len(blocks)))
 
-                        alg = AStarAlgorithm(self.world)
-                        thread = MultiMiningThread('multimining', self, alg.find_path, blocks, args)
+                        thread = MultiMiningThread('multimining', self, blocks, args)
                         thread.start()
+
+                    elif message[1] == 'respawn':
+                        packet = serverbound.play.ClientStatusPacket()
+                        packet.action_id = serverbound.play.ClientStatusPacket.RESPAWN
+                        self.connection.write_packet(packet)
+
+                    elif message[1] == 'place':
+                        location = [int(x) for x in message[2:5]]
+                        face = 1
+                        hand = 0
+                        cursor_x = 0
+                        cursor_y = 0
+                        cursor_z= 0
+
+                        self.hold(0)
+                        packet = PlayerBlockPlacementPacket()
+                        packet.location = Position(x=location[0], y=location[1], z=location[2])
+                        packet.face = face
+                        packet.hand = hand
+                        packet.cursor_x = cursor_x
+                        packet.cursor_y = cursor_y
+                        packet.cursor_z = cursor_z
+                        self.connection.write_packet(packet)
 
                     else:
                         self.say("Wrong command", 1)
@@ -317,10 +354,12 @@ class Bot():
 
         return True
 
-    def mine_with_tool(self, algorithm, args, setup=False):
+    def mine_with_tool(self, target, setup=False):
         if setup and not self.set_up_tools():
             return -1
         
+        print('target is {}'.format(target))
+
         tool_slots = {
             0 : 3,
             1 : 0,
@@ -328,10 +367,10 @@ class Bot():
             3 : 2
         }
 
-        tool = self.world.info['blocks']['tool'][str(self.world.get_block(*args['end']))]
+        tool = self.world.info['blocks']['tool'][str(self.world.get_block(*target))]
 
         if tool == -1:
-            self.say('{} is unbreakable'.format(args['end']), 1)
+            self.say('{} is unbreakable'.format(target), 1)
             return -1
         if tool not in tool_slots.keys():
             self.say("Don't have {} slot".format(self.world.info['items']['tool_ids'][str(tool)]), 1)
@@ -347,7 +386,7 @@ class Bot():
             if self.inventory[36 + self.held_slot].item_id not in self.world.info['items'][self.world.info['items']['tool_ids'][str(tool)]]:
                 raise NoToolException(self.world.info['items']['tool_ids'][str(tool)])
 
-        thread = MiningThread('mining', self, algorithm, args)
+        thread = MiningThread('mining', self, target)
         return thread.run()
 
         

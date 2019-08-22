@@ -33,10 +33,10 @@ button_delay = 0.1
 
 
 def main():
-
+    username = 'test_bot4'
     # connection = Connection(address, port, username='bot{:04d}'.format(random.randint(0, 1000)))
-    connection = Connection(address, port, username='test_bot3')
-    bot = Bot(connection)
+    connection = Connection(address, port, username=username)
+    bot = Bot(connection, username)
     
     def print_outgoing(packet):
         if type(packet) is not my_svbnd_play.DiggingPacket:
