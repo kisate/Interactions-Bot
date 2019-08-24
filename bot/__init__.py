@@ -12,6 +12,7 @@ from packets.serverbound.play import *
 from world import World
 from .inventory import Inventory
 from .exceptions import NoToolException
+from .forge_handshaker import ForgeHandshaker
 
 import json, time, sys, os
 import math
@@ -44,6 +45,7 @@ class Bot():
         self.held_slot = 0
         self.health = 20
         self.food = 20
+        self.forge_handshaker = ForgeHandshaker(self.connection)
 
     def say(self, message, level=0):
         if level == -1 or self.chat_level == -1:
@@ -135,6 +137,14 @@ class Bot():
             self.health = packet.health
             self.food = packet.food
             self.loaded_health = True
+
+        elif type(packet) is clientbound.login.LoginSuccessPacket:
+            print(packet)
+
+        elif type(packet) is clientbound.play.PluginMessagePacket:
+            print(packet)
+            self.forge_handshaker.feed_packet(packet)
+
 
         if type(packet) is Packet:
             # This is a direct instance of the base Packet type, meaning
@@ -320,8 +330,7 @@ class Bot():
                     self.say("Something's wrong. Check console", 3)
                     traceback.print_exc()
         else:
-            print(len(json_data['with']))
-            print(json_data['with'])
+            print(json_data)
 
     def hold(self, slot):
         packet = HeldItemChangePacket()

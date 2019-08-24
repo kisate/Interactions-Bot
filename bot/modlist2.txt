@@ -1,0 +1,168 @@
+AE2 Wireless Terminals (AE2WTLib): Requires version 1.0.30 but mod is not found on client.
+Actually Additions: Requires version 1.12.2-r148 but mod is not found on client.
+Actually Baubles: Requires version 1.1 but mod is not found on client.
+Advanced Rocketry: Requires version 1.5.0.-139 but mod is not found on client.
+Animus: Requires version 1 but mod is not found on client.
+ArchitectureCraft: Requires version 3.80 but client has 1.12-3.80.
+ArmoreableMobs: Requires version 1.1.2 but client has 1.12.2-1.1.8.
+ArtemisLib: Requires version 1.0.4 but mod is not found on client.
+Athenaeum: Requires version 1.12.2-1.16.0-1-g05e9939 but client has 1.12.2-1.16.0.
+AutoRegLib: Requires version 1.3-28 but mod is not found on client.
+Avaritia: Requires version 3.3.0 but mod is not found on client.
+base: Requires version 3.12.1 but client has 1.12.2-3.12.1.
+Baubles: Requires version 1.5.2 but mod is not found on client.
+Baubley Heart Canisters: Requires version 1.2.3 but mod is not found on client.
+Blood Magic: Alchemical Wizardry: Requires version 1.12.2-2.4.1-103 but mod is not found on client.
+Bookshelf: Requires version 2.3.577 but mod is not found on client.
+Botania: Requires version r1.10-361 but mod is not found on client.
+Botania Tweaks: Requires version 1.8.5 but mod is not found on client.
+Brandon's Core: Requires version 2.4.12 but mod is not found on client.
+Building Gadgets: Requires version 2.6.8 but mod is not found on client.
+CEU: Requires version 1.0.4.0 but mod is not found on client.
+Capability Adapter: Requires version 1.0 but mod is not found on client.
+Ceramics: Requires version 1.12-1.3.7 but mod is not found on client.
+Chisel: Requires version MC1.12.2-0.2.1.35 but mod is not found on client.
+Clumps: Requires version 3.1.2 but mod is not found on client.
+CoFH Core: Requires version 4.6.3 but mod is not found on client.
+CodeChicken Lib: Requires version 3.2.2.353 but mod is not found on client.
+CommonCapabilities: Requires version 2.2.1 but mod is not found on client.
+Compact Machines 3: Requires version 3.0.18 but client has 1.12.2-3.0.18-b278.
+ContentTweaker: Requires version 1.12.2-4.9.1 but mod is not found on client.
+Cooking for Blockheads: Requires version 6.4.70 but mod is not found on client.
+CosmeticArmorReworked: Requires version 1.12.2-v4a but mod is not found on client.
+CraftTweaker JEI Support: Requires version 2.0.3 but mod is not found on client.
+CraftTweaker2: Requires version 4.1.19 but mod is not found on client.
+CreativeCore: Requires version 1.9.9 but mod is not found on client.
+Crying Obsidian: Requires version 1.1.3 but mod is not found on client.
+Cucumber Library: Requires version 1.1.3 but mod is not found on client.
+Cyberware: Requires version 0.2.10.15 but client has 1.12.2-0.2.10.15.
+Cyclic: Requires version 1.12 or above but mod is not found on client.
+Cyclops Core: Requires version 1.2.0 but mod is not found on client.
+Deadly Monsters: Requires version 1.7 but mod is not found on client.
+Deep Mob Learning: Requires version 1.12.2-2.5.2 but client has 1.12.2-2.5.2-universal.
+Deep Mob Learning - Blood Magic Addon: Requires version 1.12.2-1.0.1 but client has 1.12.2-1.0.1-universal.
+Dimension Stages: Requires version 2.0.23 but mod is not found on client.
+Dimensional Control: Requires version 2.11.0 but mod is not found on client.
+Draconic Evolution: Requires version 2.3.22 but mod is not found on client.
+EmberRoot Zoo: Requires version 1.3.9 but mod is not found on client.
+Ender IO: Requires version 5.0.44 but mod is not found on client.
+Ender IO Applied Energistics Conduits: Requires version 5.0.44 but mod is not found on client.
+Ender IO Base: Requires version 5.0.44 but mod is not found on client.
+Ender IO Conduits: Requires version 5.0.44 but mod is not found on client.
+Ender IO Integration with Tinkers' Construct: Requires version 5.0.44 but mod is not found on client.
+Ender IO Integration with Tinkers' Construct: Requires version 5.0.44 but mod is not found on client.
+Ender IO Machines: Requires version 5.0.44 but mod is not found on client.
+Ender IO Powertools: Requires version 5.0.44 but mod is not found on client.
+Ender IO endergy: Requires version 5.0.44 but mod is not found on client.
+Ender Utilities: Requires version 0.7.12 but client has 1.12.2-0.7.12.
+EnderCore: Requires version 1.12.2-0.5.57 but mod is not found on client.
+EnderStorage: Requires version 2.4.5.135 but mod is not found on client.
+Extra Utilities 2: Requires version 1.0 but client has 1.12-1.9.9.
+FTB Quests: Requires version 1.6.1.162 but mod is not found on client.
+FastWorkbench: Requires version 1.7.2 but mod is not found on client.
+Floralchemy: Requires version 1.12.2-1.0.1 but mod is not found on client.
+Flux Networks: Requires version 3.0.19 but client has 1.12.2-3.0.19-21.
+Forge Microblocks: Requires version 2.6.1.81 but mod is not found on client.
+Forge Multipart CBE: Requires version 2.6.1.81 but mod is not found on client.
+Funky Locomotion: Requires version 1.0 but mod is not found on client.
+Game Stages: Requires version 2.0.115 but mod is not found on client.
+GregTech Community Edition: Requires version 1.8.3.418 but client has 1.12.2-1.8.3.418.
+Guide-API: Requires version 1.12-2.1.8-63 but mod is not found on client.
+Guidebook: Requires version 2.9.2 but mod is not found on client.
+Hardcore Darkness: Requires version 2.0 but mod is not found on client.
+Hit With Axe: Requires version 1.4.0 but mod is not found on client.
+HotOrNot: Requires version 1.1.2 but mod is not found on client.
+Hunger Overhaul: Requires version 1.12.2-1.3.3.jenkins148 but mod is not found on client.
+Ice and Fire: Requires version 1.7.1 but client has 1.7.1-1.12.2.
+Industrial Foregoing: Requires version 1.12.2-1.12.2 but client has 1.12.2-1.12.12-236.
+InitialInventory: Requires version 2.0.2 but mod is not found on client.
+Integrated Dynamics: Requires version 1.0.11 but mod is not found on client.
+Integrated Tunnels: Requires version 1.6.8 but mod is not found on client.
+IntegratedDynamics-Compat: Requires version 1.0.0 but mod is not found on client.
+IntegratedTunnels-Compat: Requires version 1.0.0 but mod is not found on client.
+Integration Foregoing: Requires version 1.12.2-1.9 but mod is not found on client.
+Iron Chest: Requires version 1.12.2-7.0.67.844 but client has 1.12.2-7.0.69.845.
+It's the little things: Requires version 1.0.0 but client has 1.12-1.0.0.
+Item Filters: Requires version 1.0.3.12 but mod is not found on client.
+Just Enough Dimensions: Requires version 1.6.0-dev.20190505.222902 but client has 1.12.2-1.6.0-dev.20190505.222902.
+Just Enough Energistics: Requires version 1.0.7 but mod is not found on client.
+LLibrary: Requires version 1.7.19 but client has 1.7.19-1.12.2.
+Lapis Stays in the Enchanting Table: Requires version 1.1.3 but mod is not found on client.
+Laser Creeper Robot Dino Riders From Space: Requires version 2.0.0 but mod is not found on client.
+LibrarianLib: Requires version 4.19.2 but client has 1.12.2-4.19.2-release.
+LibrarianLib Stage 2: Requires version 4.19.2 but mod is not found on client.
+LittleTiles: Requires version 1.5.0 but mod is not found on client.
+LootTweaker: Requires version 0.0.9 but mod is not found on client.
+MCMultiPart: Requires version 2.5.3 but mod is not found on client.
+MTLib: Requires version 3.0.6 but mod is not found on client.
+Mantle: Requires version 1.12-1.3.3.55 but mod is not found on client.
+McJtyLib: Requires version 3.5.3 but mod is not found on client.
+Mekanism: Requires version 1.12.2-9.7.8.379 but mod is not found on client.
+MightyEnderChicken: Requires version 7.3.0 or above, and below 7.4.0 but mod is not found on client.
+Minecraft Multipart Plugin: Requires version 2.6.1.81 but mod is not found on client.
+Mob Stages: Requires version 2.0.13 but mod is not found on client.
+Modular Diversity: Requires version 1.5 but mod is not found on client.
+Modular Machinery: Requires version 1.10.0 but client has 1.12.2-1.10.0.
+More Chickens: Requires version 3.2.0 but client has 1.12.2-3.2.0.
+Nature's Compass: Requires version 1.5.1 but mod is not found on client.
+OpenBlocks: Requires version 1.8.1 but mod is not found on client.
+OpenModsLib: Requires version 0.12.2 but mod is not found on client.
+OreExcavation: Requires version 1.4.140 but mod is not found on client.
+Pam's HarvestCraft: Requires version 1.12.2zb but mod is not found on client.
+Patchouli: Requires version 1.0-19 but mod is not found on client.
+Pickle Tweaks: Requires version 2.1.3 but mod is not found on client.
+Plants: Requires version 2.10.7 but mod is not found on client.
+PortalGun: Requires version 7.1.0 or above, and below 7.2.0 but mod is not found on client.
+ProjectE: Requires version 1.12.2-PE1.4.1 but mod is not found on client.
+Quark: Requires version r1.5-159 but mod is not found on client.
+RFTools: Requires version 7.71 but client has 1.12-7.71.
+Random Things: Requires version 4.2.7.1 but mod is not found on client.
+Reborn Core: Requires version 3.13.12.447 but mod is not found on client.
+Redstone Arsenal: Requires version 2.6.3 but mod is not found on client.
+Redstone Flux: Requires version 2.1.0 but mod is not found on client.
+Reliquary: Requires version 1.12.2-1.3.4.786 but mod is not found on client.
+Resizing Potion: Requires version 2.1.1 but mod is not found on client.
+Roost: Requires version 2.0.6 but mod is not found on client.
+Rough Tweaks: Requires version 1.0 but mod is not found on client.
+Rustic Thaumaturgy: Requires version 4.4a but mod is not found on client.
+Scannable: Requires version 1.6.3.24 but mod is not found on client.
+Scavenge: Requires version 1.8 but mod is not found on client.
+Shadows of Greg: Requires version 1.12.2-2.8.0 but mod is not found on client.
+Simple Teleporters: Requires version 1.12.2-3.0.2 but mod is not found on client.
+Simple Trophies: Requires version 1.2.1 but mod is not found on client.
+SonarCore: Requires version 5.0.19 but client has 1.12.2-5.0.19-20.
+Soulus: Requires version 1.12.2-4.2.2-160ded6 but mod is not found on client.
+Squeezer Patch: Requires version 1.0.0 but mod is not found on client.
+Stats Keeper: Requires version 3.1.13 but mod is not found on client.
+Super Factory Manager: Requires version @VERSION@ but mod is not found on client.
+TerraCore: Requires version 2.1.13 but mod is not found on client.
+Tesla Core Lib: Requires version 1.0.15 but mod is not found on client.
+Tesla Core Lib Registries: Requires version 1.0.15 but mod is not found on client.
+Thaumcraft: Requires version 6.1.BETA26 but mod is not found on client.
+The One Probe: Requires version 1.4.28 but client has 1.12-1.4.28.
+The Spice of Life: Requires version 1.3.12 but mod is not found on client.
+The Weirding Gadget: Requires version 1.0 but client has 1.12.2-2.1.16-universal.
+Thermal Dynamics: Requires version 2.5.5 but mod is not found on client.
+Thermal Expansion: Requires version 5.5.4 but mod is not found on client.
+Thermal Foundation: Requires version 2.6.3 but mod is not found on client.
+Thermal Innovation: Requires version 0.3.3 but mod is not found on client.
+Tinker Stages: Requires version 2.0.17 but mod is not found on client.
+Tinkers' Complement: Requires version 1.12.2-0.4.1 but mod is not found on client.
+Tinkers' Construct: Requires version 1.12.2-0.4.1 but
+TinkersExtras: Requires version 1.12.2-1.0.9 but mod is not found on client.
+TogetherForever: Requires version 1.0.2 but client has 1.12.2-1.0.12-22.
+Tomb Many Graves: Requires version 1.12-4.2.0 but mod is not found on client.
+Translocators: Requires version 2.5.1.77 but mod is not found on client.
+Traverse: Requires version 1.6.0 but mod is not found on client.
+Twerk-Sim 2K16: Requires version 1.2.10 but mod is not found on client.
+VillageTradingBan: Requires version 2.0.0 but mod is not found on client.
+Vulpes library: Requires version 0.4.0.-57 but mod is not found on client.
+Water Control Extreme: Requires version 1.0.0 but mod is not found on client.
+Water Strainer: Requires version 3.2.0 but mod is not found on client.
+Wireless Crafting Terminal 2: Requires version 3.12.93 but mod is not found on client.
+Xtones: Requires version 1.12-1.0.8-11 but mod is not found on client.
+Zen Summoning: Requires version 1.0.16 but mod is not found on client.
+Zen Triggers: Requires version 1.0.9 but mod is not found on client.
+iChunUtil: Requires version 7.2.0 or above, and below 7.3.0 but mod is not found on client.
+p455w0rd's Library: Requires version 2.2.151 but client has 1.12.2-2.2.151.
+primal_tech: Requires version 0.3.4 but mod is not found on client.

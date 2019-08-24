@@ -1,0 +1,219 @@
+superfactorymanager:2.0.18:Super Factory Manager
+reauth:3.6.0:ReAuth
+hardcoredarkness:2.0:Hardcore Darkness
+mantle:1.3.3.55:Mantle
+mtlib:3.0.6:MTLib
+tcinventoryscan:2.0.10:Thaumcrafft Inventory Scanning
+actuallybaubles:1.1:Actually Baubles
+jei:4.15.0.283:Just Enough Items
+incontrol:1.12-3.9.10:InControl
+base:1.12.2-3.12.1:B.A.S.E
+projecte:1.12.2-PE1.4.1:ProjectE
+dropt:1.12.2-1.14.0:Dropt
+togetherforever:1.12.2-1.0.12-22:TogetherForever
+theoneprobe:1.12-1.4.28:The One Probe
+jeiintegration:1.5.1.36:JEI Integration
+commoncapabilities:1.12.2-2.2.1:CommonCapabilities
+baubles:1.12-1.5.2:Baubles
+deepmoblearningbm:1.12.2-1.0.1:Deep Mob Learning - Blood Magic Addon
+dimensionalcontrol:2.11.0:Dimensional Control
+actuallyadditions:1.12.2-r148:Actually Additions
+thaumicperiphery:0.3.0:Thaumic Periphery
+harvestcraft:1.12a:Pam's HarvestCraft
+astralsorcery:1.12.2-1.10.19:Astral Sorcery
+resourceloader:1.5.3:Resource Loader
+gtadditions:1.12.2-2.8.0:Shadows of Greg
+quark:r1.5-159:Quark
+voidislandcontrol:1.5.3:Void Island Control
+InitialInventory:3.0.0:InitialInventory
+enderiointegrationtic:5.0.44:Ender IO Integration with Tinkers' Construct
+mcjtylib_ng:1.12-3.5.3:McJtyLib
+naturescompass:1.12.2-1.5.1:Nature's Compass
+wct:1.12.2-3.12.93:Wireless Crafting Terminal 2
+tips:1.0.8:Tips
+autoreglib:1.3-28:AutoRegLib
+cyberware:0.2.10:Cyberware
+ts2k16:1.2.10:Twerk-Sim 2K16
+Avaritia:3.3.0.33:Avaritia
+creativecore:1.7:CreativeCore
+integratedtunnels:1.12.2-1.6.8:Integrated Tunnels
+randompatches:1.12.2-1.16.3.1:RandomPatches
+athenaeum:1.12.2-1.16.0-1-g05e9939:Athenaeum
+libVulpes:1.12.2-0.4.0-57:libVulpes
+modtweaker:4.0.17:Mod Tweaker
+brandonscore:1.12.2-2.4.12.205:Brandon's Core
+extrautils2:${version}:Extra Utilities 2
+botania_tweaks:1.8.5:Botania Tweaks
+dmonsters:1.0:Deadly Monsters
+zentriggers:1.0.9:Zen Triggers
+thaumicjei:1.12.2-1.6.0-27:ThaumicJEI
+cosmeticarmorreworked:1.12.2-v4a:CosmeticArmorReworked
+fastbench:1.12.2-1.7.2:FastWorkbench
+buildinggadgets:2.6.8:Building Gadgets
+reborncore:3.13.12.447:Reborn Core
+stg:1.12.2-1.2.3:SwingThroughGrass
+draconicevolution:1.12.2-2.3.22.343:Draconic Evolution
+appliedenergistics2:rv6-stable-6:Applied Energistics 2
+moreoverlays:1.14:MoreOverlays
+integrationforegoing:1.12.2-1.9:Integration Foregoing
+traverse:1.12.2-1.6.0-69:Traverse
+waterstrainer:1.12-3.2.0:Water Strainer
+nutrition:1.12.2-4.3.0:Nutrition
+cookingforblockheads:6.4.70:Cooking for Blockheads
+squeezerpatch:1.12.2-1.0.0:Squeezer Patch
+biggerpacketsplz:1.2:Bigger Packets, please !
+armoreablemobs:1.12.2-1.1.8:ArmoreableMobs
+tconstruct:1.12.2-2.12.0.135:Tinkers' Construct
+wizardry:0.10.8:Wizardry
+itlt:1.0.0:It's the little things
+translocators:2.5.1.77:Translocators
+ftblib:5.4.3.118:FTB Library
+watercontrolextreme:1.0.2:Water Control Extreme
+emberroot:1.3.9:EmberRoot Zoo
+rusticthaumaturgy:4.4a:Rustic Thaumaturgy
+mekanism:1.12.2-9.7.8.379:Mekanism
+betteradvancements:0.1.0:Better Advancements
+ftbutilities:5.4.0.97:FTB Utilities
+minetogether:1.10.2-2.1.3:MineTogether
+openmods:0.12.2:OpenModsLib
+zenstages:0.4.1-19:ZenStages
+redstoneflux:2.1.0.6:Redstone Flux
+tombmanypluginscosmeticarmorreworked:1.0.0:TombManyPlugins Cosmetic Armor Reworked
+controlling:3.0.6:Controlling
+rftools:1.12-7.71:RFTools
+tombmanygraves2api:1.12.2-1.0.0:TombManyGraves2 API
+enderiomachines:5.0.44:Ender IO Machines
+modularmachinery:1.12.2-1.10.0:Modular Machinery
+roost:2.0.6:Roost
+hotornot:1.12-1.1.2-16:HotOrNot
+crafttweaker:1.12-4.1.19:CraftTweaker2
+floralchemy:1.12.2-1.0.1:Floralchemy
+rustic:1.1.0:Rustic
+primal_tech:0.3.4:primal_tech
+rf-capability-adapter:1.0.1:Capability Adapter
+funkylocomotion:1.1.2:Funky Locomotion
+plants2:1.12.2-2.10.7:Plants
+codechickenlib:3.2.2.353:CodeChicken Lib
+endercore:1.12.2-0.5.57:EnderCore
+placebo:1.12.2-1.6.0:Placebo
+thermalexpansion:5.5.4.43:Thermal Expansion
+clumps:3.1.2:Clumps
+ctm:MC1.12.2-0.3.3.22:CTM
+bnbgaminglib:2.17.6:BNBGamingLib
+topaddons:1.12.2-1.11.0:TOP Addons
+portalgun:1.12.2-7.1.0:PortalGun
+cleanview:1.12.2-v1c:CleanView
+tombmanygraves:1.12-4.2.0:Tomb Many Graves
+thermallogistics:0.2-25:Thermal Logistics
+xtones:1.12-1.0.8-11:Xtones
+artemislib:1.0.4:ArtemisLib
+bhc:1.12.2-1.2.3:Baubley Heart Canisters
+fluxnetworks:1.12.2-3.0.19-21:Flux Networks
+terracore:1.12-2.1.13:TerraCore
+f5fix:1.0.0:Camera F5 Grass Fix
+roughmobs:1.0:Rough Mobs 2
+enderstorage:2.4.5.135:EnderStorage
+hitwithaxe:1.12.2-1.4.0:Hit With Axe
+architecturecraft:@VERSION@:ArchitectureCraft
+botania:r1.10-361:Botania
+mobstages:2.0.13:Mob Stages
+enderio:5.0.44:Ender IO
+scannable:1.6.3.24:Scannable
+gregtech:1.8.3.418:GregTech Community Edition
+xreliquary:1.12.2-1.3.4.786:Reliquary
+modulardiversity:1.5:Modular Diversity
+forgemultipartcbe:2.6.1.81:Forge Multipart CBE
+enderioendergy:5.0.44:Ender IO endergy
+compactmachines3:1.12.2-3.0.18-b278:Compact Machines 3
+diethopper:1.1:Diet Hopper
+knowledgeshare:1.0:Knowledge Share
+itemfilters:1.0.3.12:Item Filters
+contenttweaker:1.12.2-4.9.1:ContentTweaker
+cofhworld:1.3.1.7:CoFH World
+jee:1.12.2-1.0.7:Just Enough Energistics
+resize:r2.0:Resizing Potion
+ae2wtlib:1.12.2-1.0.30:AE2 Wireless Terminals (AE2WTLib)
+justenoughdimensions:1.6.0-dev.20190505.222902:Just Enough Dimensions
+cofhcore:4.6.3.27:CoFH Core
+toastcontrol:1.12.2-1.8.1:Toast Control
+enderioconduits:5.0.44:Ender IO Conduits
+patchouli:1.0-19:Patchouli
+tinkerstages:2.0.17:Tinker Stages
+oreexcavation:1.4.140:OreExcavation
+spiceoflife:1.3.12:The Spice of Life
+tcomplement:1.12.2-0.4.1:Tinkers' Complement
+advancedRocketry:1.12.2-1.5.0-139:Advanced Rocketry
+insomniac:1.4:Insomniac
+dldungeonsjbg:1.11.5:Doomlike Dungeons
+XaeroMinimap:1.17.2:Xaero's Minimap
+mousetweaks:2.10:Mouse Tweaks
+XaeroWorldMap:1.3.5:Xaero's World Map
+lcrdrfs:2.0.0:Laser Creeper Robot Dino Riders From Space
+pickletweaks:2.1.3:Pickle Tweaks
+custommainmenu:2.0.9:Custom Main Menu
+FVW:1.0.0:Force Void World
+thermaldynamics:2.5.5.21:Thermal Dynamics
+ironchest:1.12.2-7.0.67.844:Iron Chest
+appleskin:1.0.9:AppleSkin
+morechickens:3.2.0:More Chickens
+weirdinggadget:2.1.16:The Weirding Gadget
+simplylight:0.7.0:Simply Light
+bookshelf:2.3.577:Bookshelf
+ceramics:1.12-1.3.7:Ceramics
+cyclopscore:1.12.2-1.2.0:Cyclops Core
+cucumber:1.1.3:Cucumber Library
+ceu:1.0.4.0:CEU
+sonarcore:1.12.2-5.0.19-20:SonarCore
+randomthings:4.2.7.1:Random Things
+iceandfire:1.7.1:Ice and Fire
+hungeroverhaul:1.3.3.jenkins148:Hunger Overhaul
+cyclicmagic:1.19.9:Cyclic
+thermalinnovation:0.3.3.12:Thermal Innovation
+librarianlib:4.19.2:LibrarianLib
+randomtweaks:1.12.2-2.6.0.0:RandomTweaks
+apotheosis:1.12.2-1.9.4:Apotheosis
+ichunutil:1.12.2-7.2.1:iChunUtil
+ftbquests:1.6.1.162:FTB Quests
+modnametooltip:1.10.0:Mod Name Tooltip
+whoops:1.0.1:Whoops
+foamfix:@VERSION@:FoamFix
+plustic:7.0.7.0:PlusTiC
+ftbbackups:1.0.0.4:FTB Utilities: Backups
+thaumicenergistics:2.2.2:Thaumic Energistics
+artisanworktables:1.12.2-1.20.2:Artisan Worktables
+zensummoning:1.0.16:Zen Summoning
+mightyenderchicken:1.12.2-7.3.0:MightyEnderChicken
+discord:1.0.10:Discord
+redstonearsenal:2.6.3.18:Redstone Arsenal
+dimstages:2.0.23:Dimension Stages
+industrialforegoing:1.12.12:Industrial Foregoing
+lteleporters:1.11.2-2.1.2:Simple Teleporters
+gamestages:2.0.115:Game Stages
+inventorytweaks:1.64+dev.146.2180b27:Inventory Tweaks
+deepmoblearning:1.12.2-2.5.2:Deep Mob Learning
+teslacorelib:1.12.2-1.0.15:Tesla Core Lib
+enderioconduitsappliedenergistics:5.0.44:Ender IO Applied Energistics Conduits
+cryingobsidian:1.1.3:Crying Obsidian
+soulus:4.2.2:Soulus
+letsnecryptcraft:1.10.2-1.2.0:Let's Encrypt Craft
+openblocks:1.8.1:OpenBlocks
+simple_trophies:1.2.1:Simple Trophies
+thaumcraft:1.12.2-6.1.BETA26:Thaumcraft
+roughtweaks:1.0:Rough Tweaks
+guideapi:1.12-2.1.8-63:Guide-API
+loottweaker:1.12.2-0.0.9:LootTweaker
+tinkersextras:1.12.2-1.0.9:TinkersExtras
+csb_ench_table:1.1.3:Lapis Stays in the Enchanting Table
+p455w0rdslib:1.12.2-2.2.151:p455w0rd's Library
+gbook:2.9.2:Guidebook
+thermalfoundation:2.6.3.27:Thermal Foundation
+chisel:MC1.12.2-0.2.1.35:Chisel
+chickens:6.1.0:Chickens
+bloodmagic:1.12.2-2.4.1-103:Blood Magic: Alchemical Wizardry
+enderutilities:0.7.12:Ender Utilities
+emojiful:1.0.3:Emojiful
+integrateddynamics:1.12.2-1.0.11:Integrated Dynamics
+stats_keeper:3.1.13:Stats Keeper
+forgelin:1.8.3:Shadowfacts' Forgelin
+llibrary:1.7.19-1.12.2:LLibrary
+animus:2.1.4:Animus
