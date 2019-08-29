@@ -10,7 +10,7 @@ class Algorithm():
         if not (blocks[1] in world.info['blocks']['passable']
             and blocks[2] in world.info['blocks']['passable']
                 and not (blocks[0] in world.info['blocks']['passable'] 
-                    and world.get_block(*np.sum([target, [0, -1, 0]], axis=0)) in world.info['blocks']['passable'])):    
+                    and world.get_block(*np.sum([target, [0, -1, 0]], axis=0)) in world.info['blocks']['passable'] and current[1] >= target[1])):    
             return -1
 
         if (blocks[0] in world.info['blocks']['damaging'] 
@@ -20,10 +20,10 @@ class Algorithm():
             return -1 
 
         distance_to_travel = np.linalg.norm(np.array(current)-np.array(target))
-        if distance_to_travel <= step_length or (current[1] != target[1] and distance_to_travel <= step_length*2 and distance_to_travel <= 9):
+        if distance_to_travel <= step_length:
             distance_to_end = np.linalg.norm(np.array(np.sum([current, pivot], axis=0))-np.array(end))
             if distance_to_end <= max_distance:
-                priority = [traveled_distance + distance_to_travel + distance_to_end, traveled_distance + distance_to_travel]
+                priority = [distance_to_end, distance_to_end, traveled_distance + distance_to_travel]
                 return priority
         
         return -1
@@ -52,7 +52,7 @@ class Algorithm():
         if distance_to_travel <= step_length:
             distance_to_end = np.linalg.norm(np.array(np.sum([current, pivot], axis=0))-np.array(end))
             if distance_to_end <= max_distance:
-                priority = [traveled_distance + distance_to_travel + distance_to_end, traveled_distance + distance_to_travel]
+                priority = [distance_to_end, distance_to_end, traveled_distance + distance_to_travel]
 
                 if world.get_block(*np.sum([current, [0, 0, 0]], axis=0)) not in world.info['blocks']['passable']:
                     priority[0] += 0.5
@@ -85,7 +85,7 @@ class Algorithm():
                 for z in range(target[2] - step_length_int, target[2] + step_length_int + 1):
                     priority = priority_function(world, [x, y, z], target, end, start, traveled_distance, step_length, max_distance, pivot)
                     if priority != -1 and Algorithm.check_and_add(visited, [x, y, z], target):
-                        heappush(heap, (priority[0], ((x, y, z), priority[1])))
+                        heappush(heap, (priority[1], ((x, y, z), priority[2], priority[0])))
     
     @staticmethod
     def check_and_add(visited, target, parent):
@@ -101,7 +101,7 @@ class Algorithm():
         return False
 
     @staticmethod
-    def find_path(world, start, end, step_length=1, max_distance=500, radius=0.5, pivot=[0, 0, 0], drop_after=1000, priority_function='wp'):
+    def find_path(world, start, end, step_length=1, max_distance=500, radius=0.5, pivot=[0, 0, 0], drop_after=1000, priority_function='wp', log=None):
         """
         Returns list of blocks on the path and actions to be done with them.
         0 -- tp, 1 -- put block under, 2 -- break lower block, 3 -- break upper block
@@ -113,25 +113,36 @@ class Algorithm():
         Algorithm.check_and_add(visited, start, -1)
         r = [end[i] - (start[i] + pivot[i]) for i in range(3)]
         dist_end = sum([x**2 for x in r])**0.5 
-        heappush(heap, (dist_end, (start, 0)))
+        heappush(heap, (dist_end, (start, 0, dist_end)))
         last_step = []
         found = False
         bad_moves_counter = 0
         last_distance = dist_end
 
         while heap:
-            distance, element = heappop(heap)
-            current_step, traveled_distance = element
+            _, element = heappop(heap)
+            # print(element)
+            
+            current_step, traveled_distance, distance = element
+            if log is not None:
+                log.append([current_step, 0])
             if distance >= last_distance:
                 bad_moves_counter += 1
+                if log is not None:
+                    log[-1][1] = 1
             else:
                 bad_moves_counter = max(0, bad_moves_counter - 1)
             
             last_distance = distance
 
+            
+
             if bad_moves_counter >= drop_after:
                 print('Too many bad moves, quiting. Counter is {}'.format(bad_moves_counter))
+                if log is not None:
+                    log[-1][1] = 2
                 break
+
 
             # print('Distance is {}, max is {}, len is {}, counter is {}'.format(distance, max_distance, len(heap), bad_moves_counter))
             if np.linalg.norm(np.array(np.sum([current_step, pivot], axis=0))-np.array(end)) < radius:
@@ -139,6 +150,8 @@ class Algorithm():
                 if block_under not in world.info['blocks']['passable'] and block_under not in world.info['blocks']['damaging']:
                     found = True
                     last_step = current_step
+                    if log is not None:
+                        log[-1][1] = 3
                     break
             Algorithm.expand(world, visited, heap, current_step, start, end, traveled_distance, step_length, max_distance, pivot, priority_function)
         

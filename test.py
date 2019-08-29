@@ -26,7 +26,8 @@ from bot import Bot
 import packets.serverbound.play as my_svbnd_play
 
 
-address = '25.100.105.39\0FML\0'
+# address = '25.100.105.39\0FML\0'
+address = '25.100.105.39'
 port = 25565
 
 button_delay = 0.1

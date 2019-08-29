@@ -14,7 +14,7 @@ from .inventory import Inventory
 from .exceptions import NoToolException
 from .forge_handshaker import ForgeHandshaker
 
-import json, time, sys, os
+import json, time, sys, os, re
 import math
 
 from threading import Thread, Lock, Event
@@ -46,6 +46,9 @@ class Bot():
         self.health = 20
         self.food = 20
         self.forge_handshaker = ForgeHandshaker(self.connection)
+        self.players = {}
+        self.player_UUIDs = {}
+        self.entity_coords = {}
 
     def say(self, message, level=0):
         if level == -1 or self.chat_level == -1:
@@ -75,8 +78,8 @@ class Bot():
             if not self.loaded:
                 self.loaded = True
                 self.say('Finished loading', 3)
-                with open('world.data', 'wb') as f:
-                    pickle.dump(self.world, f)
+                # with open('world.data', 'wb') as f:
+                #     pickle.dump(self.world, f)
 
             self.position[0] = packet.x
             self.position[1] = packet.y
@@ -91,6 +94,8 @@ class Bot():
             packet.chunk.read_data(packet.data, self.dimension)
             # self.world.chunks.append(packet.chunk)
             self.world.add_chunk(packet.chunk)
+            if self.loaded :
+                print(type(packet))
             # print("{} {}".format(packet.number_of_entities, packet.chunk.entities))
 
         elif type(packet) is clientbound.play.block_change_packet.BlockChangePacket:
@@ -145,6 +150,32 @@ class Bot():
             print(packet)
             self.forge_handshaker.feed_packet(packet)
 
+        # elif type(packet) is clientbound.play.EntityVelocityPacket:
+        #     print(packet)
+        
+        # elif type(packet) is clientbound.play.EntityLookPacket:
+        #     print(packet)
+        elif type(packet) is clientbound.play.EntityLookAndRelativeMovePacket:
+            if packet.entity_id in self.entity_coords.keys():
+                delta = [packet.delta_x / 4096, packet.delta_y / 4096, packet.delta_z / 4096]
+                self.entity_coords[packet.entity_id] = [self.entity_coords[packet.entity_id][i] + delta[i] for i in range(3)]
+                # print(f"{packet} {delta}")
+        elif type(packet) is clientbound.play.EntityRelativeMovePacket:
+            if packet.entity_id in self.entity_coords.keys():
+                delta = [packet.delta_x / 4096, packet.delta_y / 4096, packet.delta_z / 4096]
+                self.entity_coords[packet.entity_id] = [self.entity_coords[packet.entity_id][i] + delta[i] for i in range(3)]
+                # print(f"{packet} {delta}")
+        elif type(packet) is clientbound.play.EntityTeleportPacket:
+            if packet.entity_id in self.entity_coords.keys():
+                self.entity_coords[packet.entity_id] = [packet.x, packet.y, packet.z]
+            # print(packet)
+
+        elif type(packet) is clientbound.play.SpawnPlayerPacket:
+            print(packet)
+            self.players[packet.entity_id] = packet.player_UUID
+            self.player_UUIDs[packet.player_UUID] = packet.entity_id
+            self.entity_coords[packet.entity_id] = [packet.x, packet.y, packet.z]
+        
 
         if type(packet) is Packet:
             # This is a direct instance of the base Packet type, meaning
@@ -322,6 +353,22 @@ class Bot():
                         packet.cursor_y = cursor_y
                         packet.cursor_z = cursor_z
                         self.connection.write_packet(packet)
+
+                    elif message[1] == 'tome':
+                        player_id = re.search(r'id:".*"', json_data['with'][0]['hoverEvent']['value']['text']).group(0)[4:-1]
+                        entity_id = self.player_UUIDs[player_id]
+                        args = {'start' : [math.floor(x) for x in self.position], 'end' : [math.floor(x) for x in self.entity_coords[entity_id]]}
+                        print(args['end'])
+                        thread = MovingThread('moving', self, args)
+                        
+                        thread.start()
+ 
+                    elif message[1] == 'followme':
+                        player_id = re.search(r'id:".*"', json_data['with'][0]['hoverEvent']['value']['text']).group(0)[4:-1]
+                        entity_id = self.player_UUIDs[player_id]
+                        args = {}
+                        thread = FollowingThread('follow', self, args, entity_id)
+                        thread.start()
 
                     else:
                         self.say("Wrong command", 1)

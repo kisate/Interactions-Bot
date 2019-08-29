@@ -263,3 +263,32 @@ class MoveToAndMineThread(Thread):
             return self.bot.mine_with_tool(self.args['end'])
         else:
             return MiningThread('mining', self.bot, self.args['end']).run()
+
+class FollowingThread(Thread):
+    def __init__(self, name, bot, args, target):
+        Thread.__init__(self)
+        self.name = name
+        self.bot = bot
+        self.args = args
+        self.target = target
+    
+    def run(self):
+        
+        while True:
+
+            target_pos = self.bot.entity_coords[self.target]
+
+            if sum([(target_pos[i] - self.bot.position[i])**2 for i in range(3)])**0.5 > 3:
+                block_under_target = self.bot.world.get_block(floor(target_pos[0]), floor(target_pos[1]) - 1, floor(target_pos[2]))
+                if block_under_target != 0 and block_under_target not in self.bot.world.info['blocks']['damaging']:
+                    args = {'start' : [floor(x) for x in self.bot.position], 'end' : [floor(x) for x in target_pos], 'radius' : 3}
+                    thread = MovingThread('moving', self.bot, args)
+                    thread.run()
+                
+
+            if self.bot.break_event.isSet() or self.bot.break_event_multi.isSet():
+                self.bot.break_event.clear()
+                self.bot.break_event_multi.clear()
+                self.bot.chat_level = 0
+                self.bot.say('Stopped', 3)
+                return
