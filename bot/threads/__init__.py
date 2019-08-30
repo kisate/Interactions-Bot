@@ -2,7 +2,7 @@ from minecraft.networking.packets.serverbound.play import ChatPacket
 from minecraft.networking.types import Position, Slot
 
 from packets.serverbound.play import DiggingPacket, ClickWindowPacket
-from bot.exceptions import NoToolException
+from exceptions import NoToolException, ChunkNotLoadedException
 
 import numpy as np
 from threading import Thread, Lock
@@ -10,7 +10,6 @@ from time import sleep
 from math import floor
 import traceback
 from .path_finding_algorithm import Algorithm
-
 class MovingThread(Thread):
         def __init__(self, name, bot, args, time_to_wait=0.4):
             Thread.__init__(self)
@@ -22,8 +21,15 @@ class MovingThread(Thread):
         def run(self):
             with self.bot.lock:
                 try:
+                    self.args['break_event'] = self.bot.break_event
                     self.bot.say('Searching path to {}'.format(self.args['end']))
                     result = Algorithm.find_path(self.bot.world, **self.args)
+                except ChunkNotLoadedException as e:
+                    self.bot.say(f'Chunk {e.chunk_coords} not loaded')
+                    print(e)
+                    traceback.print_exc()
+                    self.bot.say('Exception occured while path-finding. Check console', 1)
+                    return
                 except Exception as e:
                     print(e)
                     traceback.print_exc()
@@ -31,6 +37,10 @@ class MovingThread(Thread):
                     return
                     
                 if result is None:
+                    if self.bot.break_event.isSet():
+                        self.bot.break_event.clear()
+                        self.bot.say('Stopped', 1)
+                        return
                     self.bot.say("No path found. (Could be too long)", 1)
                     return
 
@@ -75,6 +85,7 @@ class MovingThread(Thread):
                 sleep(0.2)
 
                 self.bot.say('Finished moving. My position is {}'.format(self.bot.position))
+                return True
 
 class FallingThread(Thread):
     def __init__(self, name, bot):
@@ -292,3 +303,33 @@ class FollowingThread(Thread):
                 self.bot.chat_level = 0
                 self.bot.say('Stopped', 3)
                 return
+
+class GetToChunkThread(Thread):
+    def __init__(self, name, bot, args, target):
+        Thread.__init__(self)
+        self.name = name
+        self.bot = bot
+        self.args = args
+        self.target = target
+    def run(self):
+        try:
+            chunk = self.bot.world.get_chunk_by_chunk_coords(*self.target)
+        except ChunkNotLoadedException:
+            nearest_chunks = [[self.target[0], self.target[1] - 1], [self.target[0] - 1, self.target[1]], 
+                                [self.target[0] + 1, self.target[1]], [self.target[0], self.target[1] + 1]]
+            distance_to_chunks = [[(x[0]-self.bot.position[0])**2 + (x[1]-self.bot.position[2])**2] for x in nearest_chunks]
+            nearest_chunk_coords = nearest_chunks[distance_to_chunks.index(min(distance_to_chunks))]
+            thread = GetToChunkThread(self.name, self.bot, self.args, nearest_chunk_coords)
+            thread.run()
+        for x in range(16):
+            for z in range(16):
+                self.args['start'] = [floor(x) for x in self.bot.position]
+                self.args['end'] = [self.target[0]*16 + x, 0, self.target[1]*16 + z]
+                self.args['ignore_y'] = True
+                self.args['drop_after'] = 200
+                res = MovingThread('move', self.bot, self.args).run() 
+                if res == True:
+                    break
+        if res:
+            return True
+        

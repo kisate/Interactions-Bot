@@ -11,7 +11,7 @@ from minecraft.networking.types import (
 from packets.serverbound.play import *
 from world import World
 from .inventory import Inventory
-from .exceptions import NoToolException
+from exceptions import NoToolException
 from .forge_handshaker import ForgeHandshaker
 
 import json, time, sys, os, re
@@ -187,6 +187,8 @@ class Bot():
         if 'with' in json_data.keys() and len(json_data['with']) == 2 and type(json_data['with'][1]) is str:
             message = json_data['with'][1].split()    
             if message[0] == '!bot':
+                self.break_event.clear()
+                self.break_event_multi.clear()
                 try:
                     if message[1] == 'goto':
                         self.break_event.clear()
@@ -370,6 +372,9 @@ class Bot():
                         thread = FollowingThread('follow', self, args, entity_id)
                         thread.start()
 
+                    elif message[1] == 'tochunk':
+                        target = [int(x) for x in message[2:4]]
+                        GetToChunkThread('get to chunk', self, {}, target).start()
                     else:
                         self.say("Wrong command", 1)
 

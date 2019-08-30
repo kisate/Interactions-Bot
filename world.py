@@ -1,4 +1,5 @@
 import numpy
+from exceptions import ChunkNotLoadedException
 
 class World():
     def __init__(self, info):
@@ -13,7 +14,10 @@ class World():
         coords = self.get_chunk_coords(x, z)
         return self.get_chunk_by_chunk_coords(*coords).get_block(x, y, z)
     def get_chunk_by_chunk_coords(self, chunk_x, chunk_z):
-        return self.chunk_dict[chunk_x][chunk_z]
+        try:
+            return self.chunk_dict[chunk_x][chunk_z]
+        except KeyError:
+            raise ChunkNotLoadedException((chunk_x, chunk_z))
     def update_block(self, x, y, z, data, relative=True):
         coords = self.get_chunk_coords(x, z)
         self.get_chunk_by_chunk_coords(*coords).update_block(x, y, z, data, relative)
