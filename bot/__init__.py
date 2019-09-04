@@ -11,17 +11,20 @@ from minecraft.networking.types import (
 from packets.serverbound.play import *
 from world import World
 from .inventory import Inventory
-from exceptions import NoToolException
+from exceptions import NoToolException, TooManyArgumentsException
 from .forge_handshaker import ForgeHandshaker
 
-import json, time, sys, os, re
+import json, os, re
 import math
+import inspect
+from .chat_commands import *
 
 from threading import Thread, Lock, Event
 import traceback
 
 from pathlib import Path
 import pickle
+
 
 class Bot():
     MINING_RADIUS = 5
@@ -190,7 +193,40 @@ class Bot():
                 self.break_event.clear()
                 self.break_event_multi.clear()
                 try:
-                    if message[1] == 'goto':
+                    command = message[1]
+                    func = commands[command]
+                    func_arg_names = inspect.getfullargspec(func)[0][1:]
+                    # print(func.__annotations__)
+
+                    args = []
+                    kwargs = {}
+                    argument_idx = 0
+                    for arg in message[2:]:
+                        if '=' in arg:
+                            key, value = arg.split('=')
+                            kwargs[key] = value
+                        else:
+                            if argument_idx < len(func.__annotations__):
+                                # cast the argument to the annotated type
+                                args.append(func.__annotations__[
+                                            func_arg_names[argument_idx]](arg))
+                                argument_idx += 1
+                            else:
+                                raise TooManyArgumentsException(message)
+
+                    if func in use_json_data:
+                        args.append(re.search(r'id:".*"', json_data['with'][0]['hoverEvent']['value']['text']).group(0)[4:-1])
+                    # call the appropriate command
+                    print(f'Calling {command} with normal arguments: {args}, keyword arguments: {kwargs}')
+                    if 'kwargs' not in func_arg_names:
+                        if len(kwargs) == 0:
+                            func(self, *args)
+                        else:
+                            raise mydong
+                    else:
+                        func(self, *args, kwargs)
+
+                    """ if message[1] == 'goto':
                         self.break_event.clear()
                         args = {'start' : [math.floor(x) for x in self.position], 'end' : [int(x) for x in message[2:5]]}
                         for additional_arg in message[5:]:
@@ -374,9 +410,9 @@ class Bot():
 
                     elif message[1] == 'tochunk':
                         target = [int(x) for x in message[2:4]]
-                        GetToChunkThread('get to chunk', self, {}, target).start()
-                    else:
-                        self.say("Wrong command", 1)
+                        GetToChunkThread('get to chunk', self, {}, target).start() """
+                    # else:
+                    #     self.say("Wrong command", 1)
 
                 except Exception as e:
                     self.say("Something's wrong. Check console", 3)
@@ -450,8 +486,5 @@ class Bot():
         thread = MiningThread('mining', self, target)
         return thread.run()
 
-        
-
-
-
-        
+    def get_int_position(self):
+        return [math.floor(x) for x in self.position]

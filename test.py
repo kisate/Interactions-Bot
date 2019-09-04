@@ -34,7 +34,7 @@ button_delay = 0.1
 
 
 def main():
-    username = 'test_bot4'
+    username = 'test_bot5'
     # connection = Connection(address, port, username='bot{:04d}'.format(random.randint(0, 1000)))
     connection = Connection(address, port, username=username)
     bot = Bot(connection, username)
